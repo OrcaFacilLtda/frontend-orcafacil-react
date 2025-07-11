@@ -1,4 +1,6 @@
-/* Reset básico */
+@import "@fontsource/be-vietnam-pro/400.css";
+@import "@fontsource/be-vietnam-pro/700.css";
+
 html, body, #root {
   height: 100%;
   width: 100%;
@@ -10,6 +12,7 @@ html, body, #root {
 #root {
   min-height: 100vh;
   min-width: 100vw;
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: #f7f7f9;
 }

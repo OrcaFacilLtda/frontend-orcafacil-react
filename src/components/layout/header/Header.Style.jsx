@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { paletteColors } from "../../../styles/Root";
+import { paletteColors, fontSizes,fontFamilies,fontWeights} from "../../../styles/Root";
 
 export const Conteiner = styled.div`
   width: 100%;
@@ -90,13 +90,17 @@ export const Nav = styled.nav`
 export const Link = styled.a`
   color: ${paletteColors.secondaryText};
   text-decoration: none;
-  font-size: 16px;
+  font-size: ${fontSizes.lg}; 
+  font-family: ${fontFamilies.primary};
+  font-weight: ${fontWeights.medium}; 
   transition: color 0.3s ease;
+
   &:hover {
     color: ${paletteColors.secondaryText};
   }
+
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: ${fontSizes.sm.fontSize};  // 14px
   }
 `;
 

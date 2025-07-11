@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../../../assets/logo/OrcaFacil.svg';
+import Logo from '../../../assets/logo/orcaFacil.svg';
 import HeaderStyle from './Header.Style';
 function Header() {
   return (
