@@ -1,5 +1,6 @@
 import React from 'react';
 import StandartImage from '../../../assets/image/standartImage.svg';
+import DefaultButton from '../../ui/default-button/Button';
 import HeroStyle from './Hero.Style';
 
 function HeroSection() {
@@ -12,7 +13,7 @@ function HeroSection() {
         <HeroStyle.Description>
           Não feche negócio no escuro — use o OrçaFácil e encontre a melhor opção com confiança.
         </HeroStyle.Description>
-        <HeroStyle.Button>Get Started</HeroStyle.Button>  
+          <DefaultButton text="Registre-se já"  variant='outlined' size='xlarge'/>
       </HeroStyle.Content>
     </HeroStyle.Container>
     </>

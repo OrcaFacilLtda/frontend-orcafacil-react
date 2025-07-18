@@ -2,6 +2,7 @@ export const paletteColors = {
     primary: '#2B4C7E',
     black: '#1E1C21',
     white: '#FFFFFF',
+    roy :"#2F80ED ",
     lightBackground: '#E5E7EB',
     primaryText: '#FFFFFF',
     secondaryText: '#2B4C7E',

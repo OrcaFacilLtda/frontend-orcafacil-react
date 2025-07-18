@@ -1,6 +1,7 @@
 import React from 'react';
 import Logo from '../../../assets/logo/orcaFacil.svg';
 import HeaderStyle from './Header.Style';
+import DefaultButton from '../../ui/default-button/Button';
 function Header() {
   return (
     <>
@@ -14,8 +15,8 @@ function Header() {
           <HeaderStyle.Link href="#">Contact</HeaderStyle.Link>
         </HeaderStyle.Nav>
         <HeaderStyle.LoginAndRegisterConteiner>
-          <HeaderStyle.Button>Register</HeaderStyle.Button>
-          <HeaderStyle.Button>Login</HeaderStyle.Button>
+          <DefaultButton text="Registre-se" />
+          <DefaultButton text="Entre" />  
         </HeaderStyle.LoginAndRegisterConteiner>
       </HeaderStyle.Container>
     </>

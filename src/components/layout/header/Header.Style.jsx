@@ -3,8 +3,8 @@ import { paletteColors, fontSizes,fontFamilies,fontWeights} from "../../../style
 
 export const Conteiner = styled.div`
   width: 100%;
-  min-height: 22px;
-  max-height: 80px;
+  min-height: 80px;
+  max-height: 85px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -13,7 +13,6 @@ export const Conteiner = styled.div`
   border-radius: 0;
   padding: 0 135px;
   margin: 0;
-  /* Removido position: relative */
   @media (max-width: 768px) {
     padding: 0 16px;
   }
@@ -87,23 +86,42 @@ export const Nav = styled.nav`
   }
 `;
 
+
 export const Link = styled.a`
+  position: relative;
   color: ${paletteColors.secondaryText};
   text-decoration: none;
-  font-size: ${fontSizes.lg}; 
+  font-size: ${fontSizes.lg};
   font-family: ${fontFamilies.primary};
-  font-weight: ${fontWeights.medium}; 
+  font-weight: ${fontWeights.bold};
   transition: color 0.3s ease;
 
   &:hover {
     color: ${paletteColors.secondaryText};
   }
 
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: ${paletteColors.primary};
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+
   @media (max-width: 768px) {
-    font-size: ${fontSizes.sm.fontSize};  // 14px
+    font-size: ${fontSizes.sm.fontSize}; // 14px
   }
 `;
-
 export default {
   Container: Conteiner,
   Logo: Logo,

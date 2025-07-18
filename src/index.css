@@ -10,8 +10,6 @@ html, body, #root {
 
 /* Garante que o App ocupe toda a tela */
 #root {
-  min-height: 100vh;
-  min-width: 100vw;
   display: flex;
   flex-direction: column;
   background: #f7f7f9;
