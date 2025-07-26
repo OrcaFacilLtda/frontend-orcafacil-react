@@ -1,4 +1,10 @@
 import styled from 'styled-components';
+import {
+    paletteColors,
+    fontWeights,
+    fontFamilies,
+    fontSizes,
+} from '../../../../styles/Root.jsx';
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -14,12 +20,13 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-    background: #fff;
+    background: ${paletteColors.white};
     border-radius: 8px;
     width: 500px;
     max-width: 90%;
     padding: 24px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: ${fontFamilies.primary};
 `;
 
 const ModalHeader = styled.div`
@@ -29,8 +36,10 @@ const ModalHeader = styled.div`
 
     h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: ${fontSizes.lg};
         color: #333;
+        font-family: ${fontFamilies.primary};
+        font-weight: ${fontWeights.semiBold};
     }
 
     button {
@@ -38,6 +47,7 @@ const ModalHeader = styled.div`
         border: none;
         cursor: pointer;
         color: #007bff;
+        font-family: ${fontFamilies.primary};
     }
 `;
 
@@ -56,25 +66,27 @@ const FormControl = styled.div`
 `;
 
 const Label = styled.label`
-    font-size: 14px;
+    font-size: ${fontSizes.sm};
     color: #333;
     margin-bottom: 6px;
     display: block;
+    font-family: ${fontFamilies.primary};
 `;
 
 const sharedInputStyles = `
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    line-height: 1.4;
-    box-sizing: border-box;
-    outline: none;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: ${fontSizes.sm};
+  line-height: 1.4;
+  box-sizing: border-box;
+  outline: none;
+  font-family: ${fontFamilies.primary};
 
-    &:focus {
-        border-color: #3d73dd;
-    }
+  &:focus {
+    border-color: #3d73dd;
+  }
 `;
 
 const Input = styled.input`
@@ -100,13 +112,14 @@ const ButtonWrapper = styled.div`
 
 const SubmitButton = styled.button`
     background-color: #3d73dd;
-    color: white;
+    color: ${paletteColors.white};
     padding: 10px 24px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 14px;
+    font-weight: ${fontWeights.medium};
+    font-size: ${fontSizes.sm};
+    font-family: ${fontFamilies.primary};
 
     &:hover {
         background-color: #345fcc;

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import customerData from "./data.js";
-import CustomerReviewsStyle from "./Custumer.Style.Jsx";
+import CustomerReviewsStyle from "./CustumerReviews.Style.Jsx";
 
 const CustomerReviews = () => {
   return (

@@ -1,7 +1,6 @@
 import styled, { css } from "styled-components";
 import { paletteColors, fontSizes, fontFamilies } from "../../../styles/Root";
 
-// Tamanhos
 const sizeVariants = {
   small: css`
     padding: 6px 12px;

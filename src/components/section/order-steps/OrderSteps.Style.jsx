@@ -1,9 +1,16 @@
 import styled from "styled-components";
+import {
+    paletteColors,
+    fontWeights,
+    fontFamilies,
+    fontSizes,
+} from '../../../styles/Root.jsx';
 
 const OrderDetailsWrapper = styled.div`
     padding: 30px;
-    background-color: #fff;
+    background-color: ${paletteColors.white};
     border-radius: 10px;
+    font-family: ${fontFamilies.primary};
 `;
 
 const Step = styled.div`
@@ -11,6 +18,7 @@ const Step = styled.div`
     align-items: flex-start;
     margin-bottom: 20px;
     opacity: ${({ active, completed }) => (active || completed ? 1 : 0.5)};
+    font-family: ${fontFamilies.primary};
 `;
 
 const StepCircle = styled.div`
@@ -20,25 +28,29 @@ const StepCircle = styled.div`
     background-color: ${({ status }) =>
             status === "completed" ? "#4caf50" :
                     status === "active" ? "#ff9800" : "#e0e0e0"};
-    color: #fff;
+    color: ${paletteColors.white};
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 15px;
-    font-weight: bold;
+    font-weight: ${fontWeights.bold};
+    font-family: ${fontFamilies.primary};
 `;
 
 const StepContent = styled.div`
     flex: 1;
+    font-family: ${fontFamilies.primary};
 `;
 
 const StepTitle = styled.div`
-    font-weight: bold;
+    font-weight: ${fontWeights.bold};
     margin-bottom: 5px;
+    font-family: ${fontFamilies.primary};
 `;
 
 const StepDescription = styled.div`
     color: #777;
+    font-family: ${fontFamilies.primary};
 `;
 
 const ActionBox = styled.div`
@@ -47,26 +59,29 @@ const ActionBox = styled.div`
     padding: 12px 15px;
     border-radius: 8px;
     margin-top: 10px;
+    font-family: ${fontFamilies.primary};
 `;
 
 const CalendarWrapper = styled.div`
     margin-top: 10px;
-    background: white;
+    background: ${paletteColors.white};
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 10px;
     width: fit-content;
+    font-family: ${fontFamilies.primary};
 `;
 
 const ConfirmButton = styled.button`
     background-color: #28a745;
-    color: white;
+    color: ${paletteColors.white};
     padding: 8px 16px;
     border: none;
     margin-right: 10px;
     border-radius: 5px;
-    font-weight: bold;
+    font-weight: ${fontWeights.bold};
     cursor: pointer;
+    font-family: ${fontFamilies.primary};
 `;
 
 const SecondaryButton = styled.button`
@@ -80,12 +95,14 @@ const SecondaryButton = styled.button`
     align-items: center;
     gap: 15px;
     cursor: pointer;
+    font-family: ${fontFamilies.primary};
 `;
 
 const PendingText = styled.p`
     margin-top: 10px;
     color: #28a745;
-    font-weight: 600;
+    font-weight: ${fontWeights.semiBold};
+    font-family: ${fontFamilies.primary};
 `;
 
 const DateRangeWrapper = styled.div`
@@ -93,12 +110,14 @@ const DateRangeWrapper = styled.div`
     gap: 15px;
     align-items: center;
     margin-top: 10px;
+    font-family: ${fontFamilies.primary};
 `;
 
 const DateLabel = styled.label`
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: ${fontWeights.semiBold};
+    font-size: ${fontSizes.sm};
     color: #333;
+    font-family: ${fontFamilies.primary};
 `;
 
 const DateInput = styled.input`

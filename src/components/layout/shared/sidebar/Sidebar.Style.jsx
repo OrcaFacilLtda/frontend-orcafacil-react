@@ -1,144 +1,164 @@
 import styled from 'styled-components';
+import {
+    paletteColors,
+    fontWeights,
+    fontFamilies,
+    fontSizes,
+} from '../../../../styles/Root.jsx';
 
-export const Container = styled.div`
+ const Container = styled.div`
     width: 240px;
-    background: white;
+    background: ${paletteColors.white};
     min-height: 100vh;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Header = styled.div`
+ const Header = styled.div`
     padding: 24px 16px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
     border-bottom: 1px solid #f3f4f6;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Logo = styled.div`
-    background: #3b82f6;
-    color: white;
+ const Logo = styled.div`
+    background: ${paletteColors.roy.trim()};
+    color: ${paletteColors.white};
     width: 36px;
     height: 36px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: ${fontSizes['3xl']}; 
+    font-family: ${fontFamilies.primary};
     flex-shrink: 0;
 `;
 
-export const TitleBlock = styled.div`
+ const TitleBlock = styled.div`
     display: flex;
     flex-direction: column;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Title = styled.span`
-    font-weight: 900;
-    font-size: 24px;
-    color: #111827;
+ const Title = styled.span`
+    font-weight: ${fontWeights.black};  
+    font-size: ${fontSizes['2xl']};     
+    color: ${paletteColors.terciaryText};  
     line-height: 1.2;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Role = styled.span`
-    font-size: 13px;
-    font-weight: 500;
-    color: #6b7280;
+ const Role = styled.span`
+    font-size: ${fontSizes.xs};         
+    font-weight: ${fontWeights.medium};
+    color: #6b7280;                   
     margin-top: 2px;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Nav = styled.ul`
-    list-style: none;
-    padding: 16px 0 0;
-    margin: 0;
+ const Nav = styled.ul`
+  list-style: none;
+  padding: 16px 0 0;
+  margin: 0;
+  font-family: ${fontFamilies.primary};
 
-    li {
-        margin: 6px 0;
+  li {
+    margin: 6px 0;
 
-        a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #111827;
-            font-weight: 500;
-            font-size: 14px;
+    a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: ${paletteColors.terciaryText};  
+      font-weight: ${fontWeights.medium}; 
+      font-size: ${fontSizes.sm};           
+      font-family: ${fontFamilies.primary};
 
-            &:hover {
-                background: #f0f0f0;
-            }
+      &:hover {
+        background: #f0f0f0;
+      }
 
-            &.active,
-            &:focus {
-                background: #3b82f6;
-                color: white;
-            }
-        }
+      &.active,
+      &:focus {
+        background: ${paletteColors.roy.trim()};
+        color: ${paletteColors.white};
+      }
     }
+  }
 `;
 
-export const FooterContainer = styled.div`
+ const FooterContainer = styled.div`
     display: flex;
     flex-direction: column;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Footer = styled.div`
-    padding: 16px;
-    background: #f9fafb;
+ const Footer = styled.div`
+  padding: 16px;
+  background: ${paletteColors.aliceBlue.trim()};  
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: ${fontFamilies.primary};
+
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  strong {
+    font-size: ${fontSizes.sm};           
+    display: block;
+    color: ${paletteColors.black};       
+    font-family: ${fontFamilies.primary};
+  }
+
+  span {
+    font-size: ${fontSizes.xs};          
+    color: #6b7280;                      
+    font-family: ${fontFamilies.primary};
+  }
+`;
+
+ const LogoutWrapper = styled.div`
+  padding: 10px 16px 16px;
+  border-top: 1px solid #f3f8f8;
+  background: ${paletteColors.aliceBlue.trim()};
+  font-family: ${fontFamilies.primary};
+
+  button {
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    font-weight: ${fontWeights.medium}; 
+    font-size: ${fontSizes.sm};            
+    color: ${paletteColors.terciaryText}; 
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: ${fontFamilies.primary};
 
-    img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
+    &:hover {
+      background: #f0f0f0;
     }
-
-    strong {
-        font-size: 14px;
-        display: block;
-        color: #111;
-    }
-
-    span {
-        font-size: 12px;
-        color: #6b7280;
-    }
+  }
 `;
 
-export const LogoutWrapper = styled.div`
-    padding: 10px 16px 16px;
-    border-top: 1px solid #f3f8f8;
-    background: #f9fafb;
-
-    button {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 0;
-        border: none;
-        background: transparent;
-        font-weight: 500;
-        font-size: 14px;
-        color: #111827;
-        cursor: pointer;
-        border-radius: 8px;
-
-        &:hover {
-            background: #f0f0f0;
-        }
-    }
-`;
-
-const SidebarStyle = {
+export default  {
     Container,
     Header,
     Logo,
@@ -151,4 +171,3 @@ const SidebarStyle = {
     LogoutWrapper,
 };
 
-export default SidebarStyle;

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 import EditCategoryModal from '../../../components/ui/modals/edit-category-modal/EditCategoryModal.jsx';
+
 export default function Category() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -61,7 +62,6 @@ export default function Category() {
 
         setCategories([...categories, newCat]);
 
-        // Limpa o formulário
         setNewCategory({ name: '', description: '', status: '' });
     };
 
@@ -116,7 +116,7 @@ export default function Category() {
                     <h2>Nova Categoria</h2>
                     <CategoryStyle.Form>
                         <CategoryStyle.FormGroup>
-                            <label>Nome da Categoria *</label>
+                            <label>Nome da Categoria </label>
                             <input
                                 type="text"
                                 name="name"
@@ -138,7 +138,7 @@ export default function Category() {
                         </CategoryStyle.FormGroup>
 
                         <CategoryStyle.FormGroup>
-                            <label>Status *</label>
+                            <label>Status</label>
                             <input
                                 type="text"
                                 name="status"

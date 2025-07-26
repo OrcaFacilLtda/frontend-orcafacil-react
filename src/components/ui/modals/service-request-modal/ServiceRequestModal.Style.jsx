@@ -1,4 +1,10 @@
 import styled from "styled-components";
+import {
+    paletteColors,
+    fontSizes,
+    fontWeights,
+    fontFamilies,
+} from "../../../../styles/Root.jsx";
 
 const Overlay = styled.div`
     position: fixed;
@@ -14,12 +20,13 @@ const Overlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-    background-color: #fff;
+    background-color: ${paletteColors.white};
     width: 100%;
     max-width: 600px;
     border-radius: 8px;
     padding: 24px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    font-family: ${fontFamilies.primary};
 `;
 
 const Header = styled.div`
@@ -30,7 +37,8 @@ const Header = styled.div`
 
     h3 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: ${fontSizes.xl};
+        font-family: ${fontFamilies.primary};
     }
 `;
 
@@ -38,11 +46,12 @@ const CloseButton = styled.button`
     background: transparent;
     border: none;
     cursor: pointer;
-    color: #333;
-    font-size: 1.2rem;
+    color: ${paletteColors.terciaryText};
+    font-size: ${fontSizes.lg};
+    font-family: ${fontFamilies.primary};
 
     &:hover {
-        color: #000;
+        color: ${paletteColors.black};
     }
 `;
 
@@ -66,13 +75,14 @@ const InputRow = styled.div`
 const SubmitButton = styled.button`
     margin-top: 12px;
     padding: 12px 16px;
-    background-color: #2563eb;
-    color: #fff;
+    background-color: ${paletteColors.roy};
+    color: ${paletteColors.white};
     border: none;
     border-radius: 4px;
-    font-weight: bold;
+    font-weight: ${fontWeights.bold};
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-family: ${fontFamilies.primary};
 
     &:hover {
         background-color: #1d4ed8;
@@ -86,5 +96,5 @@ export default {
     CloseButton,
     Body,
     InputRow,
-    SubmitButton
+    SubmitButton,
 };

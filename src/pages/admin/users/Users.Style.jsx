@@ -1,37 +1,46 @@
 import styled from 'styled-components';
+import {
+    paletteColors,
+    fontSizes,
+    fontFamilies,
+    fontWeights,
+} from '../../../styles/Root';
 
-export const Container = styled.div`
+const Container = styled.div`
     padding: 24px;
     background: #f7f9fc;
     min-height: 100vh;
     color: #222;
     box-sizing: border-box;
+    font-family: ${fontFamilies.primary};
 `;
 
-export const Header = styled.div`
-    margin-bottom: 24px;
+const Header = styled.div`
+  margin-bottom: 24px;
 
-    h2 {
-        margin: 0 0 4px;
-        font-weight: 800;
-        font-size: 24px;
-    }
+  h2 {
+    margin: 0 0 4px;
+    font-weight: ${fontWeights.extraBold};
+    font-size: ${fontSizes['2xl']};
+    color: ${paletteColors.black};
+  }
 
-    p {
-        margin: 0;
-        color: #6b7280;
-        font-size: 16px;
-    }
+  p {
+    margin: 0;
+    color: ${paletteColors.dimGray};
+    font-size: ${fontSizes.base};
+    font-weight: ${fontWeights.regular};
+  }
 `;
 
-export const InfoCards = styled.div`
+const InfoCards = styled.div`
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
 `;
 
-export const Card = styled.div`
-    background: white;
+const Card = styled.div`
+    background: ${paletteColors.white};
     border-radius: 8px;
     padding: 16px 20px;
     flex: 1;
@@ -42,40 +51,41 @@ export const Card = styled.div`
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
 `;
 
+const CardInfo = styled.div`
+  display: flex;
+  flex-direction: column;
 
-export const CardInfo = styled.div`
-    display: flex;
-    flex-direction: column;
-    span {
-        font-size: 18px;
-        font-weight: 500;
-        color: #374151;
-    }
+  span {
+    font-size: ${fontSizes.lg};
+    font-weight: ${fontWeights.medium};
+    color: ${paletteColors.terciaryText};
+  }
 
-    strong {
-        font-size: 22px;
-        display: block;
-        margin-top: 4px;
-    }
+  strong {
+    font-size: ${fontSizes['2xl']};
+    display: block;
+    margin-top: 4px;
+    font-weight: ${fontWeights.bold};
+    color: ${paletteColors.black};
+  }
 `;
 
-
-export const IconWrapper = styled.div`
-    background: #ffecb5;
+const IconWrapper = styled.div`
+    background: #ffecb5; 
     border-radius: 8px;
     padding: 8px;
-    font-size: 20px;
+    font-size: ${fontSizes.lg};
     color: #d97706;
 `;
 
-export const Sections = styled.div`
+const Sections = styled.div`
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
 `;
 
-export const Section = styled.div`
-    background: white;
+const Section = styled.div`
+    background: ${paletteColors.white};
     border-radius: 8px;
     padding: 45px;
     flex: 1;
@@ -86,92 +96,94 @@ export const Section = styled.div`
     box-sizing: border-box;
 `;
 
-
-export const SectionHeader = styled.div`
+const SectionHeader = styled.div`
     margin-bottom: 12px;
 
     h4 {
         margin: 0 0 12px 0;
-        font-weight: 600;
+        font-weight: ${fontWeights.semiBold};
+        font-size: ${fontSizes.lg};
+        color: ${paletteColors.black};
     }
 `;
 
-export const SearchInputWrapper = styled.div`
+const SearchInputWrapper = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    border: 1px solid #ccc;
+    border: 1px solid ${paletteColors.lightGrayBorder};
     border-radius: 6px;
-    color: #6b7280;
+    color: ${paletteColors.dimGray};
     margin-bottom: 12px;
 
     input {
         border: none;
         outline: none;
         width: 100%;
-        font-size: 14px;
+        font-size: ${fontSizes.sm};
+        font-family: ${fontFamilies.primary};
     }
 `;
 
-export const List = styled.div`
+const List = styled.div`
     display: flex;
     flex-direction: column;
     gap: 12px;
 `;
 
-export const ListItem = styled.div`
-    border: 1px solid #000;
-    border-radius: 8px;
-    padding: 12px 16px;
+const ListItem = styled.div`
+  border: 1px solid #000;
+  border-radius: 8px;
+  padding: 12px 16px;
 
-    strong {
-        display: block;
-        margin-bottom: 4px;
-        font-weight: 700;
-    }
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: ${fontWeights.bold};
+    font-size: ${fontSizes.base};
+    color: ${paletteColors.black};
+  }
 
-    p {
-        margin: 0 0 8px 0;
-        font-size: 13px;
-        color: #555;
-    }
+  p {
+    margin: 0 0 8px 0;
+    font-size: ${fontSizes.xs}; // 13px ≈ 12px
+    color: #555;
+    font-weight: ${fontWeights.regular};
+  }
 `;
 
-export const ButtonsWrapper = styled.div`
-    display: flex;
-    gap: 8px;
+const ButtonsWrapper = styled.div`
+  display: flex;
+  gap: 8px;
 
-    button {
-        padding: 4px 12px;
-        border-radius: 4px;
-        border: none;
-        font-size: 12px;
-        cursor: pointer;
-    }
+  button {
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: none;
+    font-size: ${fontSizes.xs};
+    cursor: pointer;
+    font-family: ${fontFamilies.primary};
+  }
 
-    .btn-analyze {
-        background: #c67c00;
-        color: white;
-    }
+  .btn-analyze {
+    background: #c67c00;
+    color: ${paletteColors.white};
+  }
 
-    .btn-reject {
-        background: #c0c0c0;
-        color: #444;
-    }
+  .btn-reject,
+  .btn-delete {
+    background: #c0c0c0;
+    color: #444;
+  }
 
-    .btn-edit {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .btn-delete {
-        background: #c0c0c0;
-        color: #444;
-    }
+  .btn-edit {
+    background: ${paletteColors.roy};
+    color: ${paletteColors.white};
+  }
 `;
 
-const UsersStyle = {
+export default {
     Container,
     Header,
     InfoCards,
@@ -186,5 +198,3 @@ const UsersStyle = {
     ListItem,
     ButtonsWrapper,
 };
-
-export default UsersStyle;

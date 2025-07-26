@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import processStyle from "./OrderProcess.Style.jsx";
+import OrderProcessStyle from "./OrderProcess.Style.jsx";
 import OrderSteps from "../../../components/section/order-steps/OrderSteps.jsx";
 import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,85 +34,85 @@ const ServiceTracking = ({ isProvider = false }) => {
     const personToShow = isProvider ? client : provider;
 
     return (
-        <processStyle.Container>
-            <processStyle.Header>
-                <processStyle.TitleSection>
-                    <processStyle.Title>Service Tracking</processStyle.Title>
-                    <processStyle.Subtitle>Request #12345 – Electrical Installation</processStyle.Subtitle>
-                </processStyle.TitleSection>
+        <OrderProcessStyle.Container>
+            <OrderProcessStyle.Header>
+                <OrderProcessStyle.TitleSection>
+                    <OrderProcessStyle.Title>Service Tracking</OrderProcessStyle.Title>
+                    <OrderProcessStyle.Subtitle>Request #12345 – Electrical Installation</OrderProcessStyle.Subtitle>
+                </OrderProcessStyle.TitleSection>
 
-                <processStyle.HeaderButtons>
-                    <processStyle.RejectButton>× Reject</processStyle.RejectButton>
-                    <processStyle.StatusBadge>⚠ In Progress</processStyle.StatusBadge>
-                </processStyle.HeaderButtons>
-            </processStyle.Header>
+                <OrderProcessStyle.HeaderButtons>
+                    <OrderProcessStyle.RejectButton>× Reject</OrderProcessStyle.RejectButton>
+                    <OrderProcessStyle.StatusBadge>⚠ In Progress</OrderProcessStyle.StatusBadge>
+                </OrderProcessStyle.HeaderButtons>
+            </OrderProcessStyle.Header>
 
-            <processStyle.Content>
-                <processStyle.LeftPanel>
+            <OrderProcessStyle.Content>
+                <OrderProcessStyle.LeftPanel>
                     <h3>Service Steps</h3>
                     <OrderSteps
                         currentStep={currentStep}
                         confirmations={confirmations}
                         isPrestador={isProvider}
                     />
-                </processStyle.LeftPanel>
+                </OrderProcessStyle.LeftPanel>
 
-                <processStyle.RightPanel>
-                    <processStyle.Card>
-                        <processStyle.PersonInfo>
-                            <processStyle.PersonImage src={personToShow.avatar} alt={personToShow.name} />
-                            <processStyle.PersonName>{personToShow.name}</processStyle.PersonName>
-                            <processStyle.PersonAddress>{personToShow.address}</processStyle.PersonAddress>
-                            <processStyle.ContactButton phone href={`tel:${personToShow.phone}`}>
+                <OrderProcessStyle.RightPanel>
+                    <OrderProcessStyle.Card>
+                        <OrderProcessStyle.PersonInfo>
+                            <OrderProcessStyle.PersonImage src={personToShow.avatar} alt={personToShow.name} />
+                            <OrderProcessStyle.PersonName>{personToShow.name}</OrderProcessStyle.PersonName>
+                            <OrderProcessStyle.PersonAddress>{personToShow.address}</OrderProcessStyle.PersonAddress>
+                            <OrderProcessStyle.ContactButton phone href={`tel:${personToShow.phone}`}>
                                 <FontAwesomeIcon icon={faPhone} /> {personToShow.phone}
-                            </processStyle.ContactButton>
-                            <processStyle.ContactButton href={`mailto:${personToShow.email}`}>
+                            </OrderProcessStyle.ContactButton>
+                            <OrderProcessStyle.ContactButton href={`mailto:${personToShow.email}`}>
                                 <FontAwesomeIcon icon={faEnvelope} /> Email
-                            </processStyle.ContactButton>
-                        </processStyle.PersonInfo>
-                    </processStyle.Card>
+                            </OrderProcessStyle.ContactButton>
+                        </OrderProcessStyle.PersonInfo>
+                    </OrderProcessStyle.Card>
 
-                    <processStyle.Card>
-                        <processStyle.ServiceDetails>
-                            <processStyle.ServiceRow>
-                                <processStyle.ServiceLabel>Status:</processStyle.ServiceLabel>
-                                <processStyle.ServiceValue>In Progress</processStyle.ServiceValue>
-                            </processStyle.ServiceRow>
-                            <processStyle.ServiceRow>
-                                <processStyle.ServiceLabel>Deadline:</processStyle.ServiceLabel>
-                                <processStyle.ServiceValue>None</processStyle.ServiceValue>
-                            </processStyle.ServiceRow>
-                            <processStyle.ServiceRow>
-                                <processStyle.ServiceLabel>Start:</processStyle.ServiceLabel>
-                                <processStyle.ServiceValue>None</processStyle.ServiceValue>
-                            </processStyle.ServiceRow>
-                            <processStyle.ServiceRow>
-                                <processStyle.ServiceLabel>Estimated:</processStyle.ServiceLabel>
-                                <processStyle.ServiceValue>None</processStyle.ServiceValue>
-                            </processStyle.ServiceRow>
-                        </processStyle.ServiceDetails>
-                    </processStyle.Card>
+                    <OrderProcessStyle.Card>
+                        <OrderProcessStyle.ServiceDetails>
+                            <OrderProcessStyle.ServiceRow>
+                                <OrderProcessStyle.ServiceLabel>Status:</OrderProcessStyle.ServiceLabel>
+                                <OrderProcessStyle.ServiceValue>In Progress</OrderProcessStyle.ServiceValue>
+                            </OrderProcessStyle.ServiceRow>
+                            <OrderProcessStyle.ServiceRow>
+                                <OrderProcessStyle.ServiceLabel>Deadline:</OrderProcessStyle.ServiceLabel>
+                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
+                            </OrderProcessStyle.ServiceRow>
+                            <OrderProcessStyle.ServiceRow>
+                                <OrderProcessStyle.ServiceLabel>Start:</OrderProcessStyle.ServiceLabel>
+                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
+                            </OrderProcessStyle.ServiceRow>
+                            <OrderProcessStyle.ServiceRow>
+                                <OrderProcessStyle.ServiceLabel>Estimated:</OrderProcessStyle.ServiceLabel>
+                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
+                            </OrderProcessStyle.ServiceRow>
+                        </OrderProcessStyle.ServiceDetails>
+                    </OrderProcessStyle.Card>
 
-                    <processStyle.Card>
+                    <OrderProcessStyle.Card>
                         <h4>Materials Used</h4>
-                        <processStyle.MaterialsTable>
-                            <processStyle.TableHead>
-                                <processStyle.TableRow>
-                                    <processStyle.TableHeader>Material</processStyle.TableHeader>
-                                    <processStyle.TableHeader>Qty Used</processStyle.TableHeader>
-                                </processStyle.TableRow>
-                            </processStyle.TableHead>
-                            <processStyle.TableBody>
-                                <processStyle.TableRow>
-                                    <processStyle.TableData>-</processStyle.TableData>
-                                    <processStyle.TableData>-</processStyle.TableData>
-                                </processStyle.TableRow>
-                            </processStyle.TableBody>
-                        </processStyle.MaterialsTable>
-                    </processStyle.Card>
-                </processStyle.RightPanel>
-            </processStyle.Content>
-        </processStyle.Container>
+                        <OrderProcessStyle.MaterialsTable>
+                            <OrderProcessStyle.TableHead>
+                                <OrderProcessStyle.TableRow>
+                                    <OrderProcessStyle.TableHeader>Material</OrderProcessStyle.TableHeader>
+                                    <OrderProcessStyle.TableHeader>Qty Used</OrderProcessStyle.TableHeader>
+                                </OrderProcessStyle.TableRow>
+                            </OrderProcessStyle.TableHead>
+                            <OrderProcessStyle.TableBody>
+                                <OrderProcessStyle.TableRow>
+                                    <OrderProcessStyle.TableData>-</OrderProcessStyle.TableData>
+                                    <OrderProcessStyle.TableData>-</OrderProcessStyle.TableData>
+                                </OrderProcessStyle.TableRow>
+                            </OrderProcessStyle.TableBody>
+                        </OrderProcessStyle.MaterialsTable>
+                    </OrderProcessStyle.Card>
+                </OrderProcessStyle.RightPanel>
+            </OrderProcessStyle.Content>
+        </OrderProcessStyle.Container>
     );
 };
 

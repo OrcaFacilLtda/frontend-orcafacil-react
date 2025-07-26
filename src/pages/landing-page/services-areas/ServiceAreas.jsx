@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ServiceAreasStyle from './ServicesAreas.Styles.jsx';
+import ServiceAreasStyle from './ServicesAreas.Style.jsx';
 import data from './data.js';
 
 function ServiceAreas() {

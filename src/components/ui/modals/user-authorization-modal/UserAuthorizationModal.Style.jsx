@@ -1,4 +1,10 @@
 import styled from "styled-components";
+import {
+    paletteColors,
+    fontSizes,
+    fontWeights,
+    fontFamilies,
+} from "../../../../styles/Root.jsx";
 
 const Overlay = styled.div`
     position: fixed;
@@ -14,12 +20,13 @@ const Overlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-    background: #fff;
+    background: ${paletteColors.white};
     border-radius: 8px;
     padding: 24px;
     max-width: 400px;
     width: 100%;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    font-family: ${fontFamilies.primary};
 `;
 
 const Header = styled.div`
@@ -30,14 +37,16 @@ const Header = styled.div`
 
     h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: ${fontSizes.lg};
+        font-family: ${fontFamilies.primary};
     }
 
     button {
         background: transparent;
         border: none;
         cursor: pointer;
-        color: #333;
+        color: ${paletteColors.terciaryText};
+        font-family: ${fontFamilies.primary};
     }
 `;
 
@@ -59,13 +68,14 @@ const Footer = styled.div`
 `;
 
 const SubmitButton = styled.button`
-    background-color: #2563eb;
-    color: #fff;
+    background-color: ${paletteColors.roy};
+    color: ${paletteColors.white};
     border: none;
     padding: 10px 16px;
     border-radius: 4px;
-    font-weight: bold;
+    font-weight: ${fontWeights.bold};
     cursor: pointer;
+    font-family: ${fontFamilies.primary};
 
     &:hover {
         background-color: #1d4ed8;

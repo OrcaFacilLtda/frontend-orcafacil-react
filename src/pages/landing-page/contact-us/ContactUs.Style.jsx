@@ -1,4 +1,3 @@
-// ContactUs.style.js
 import styled from "styled-components";
 import { fontSizes, paletteColors, fontFamilies } from "../../../styles/Root.jsx";
 

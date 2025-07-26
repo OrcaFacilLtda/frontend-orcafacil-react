@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import RequestServiceStyle from "./RequestService.Style.jsx";
+
 import { summaryData, recentServices } from "./Request.jsx";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faComments, faSearch } from "@fortawesome/free-solid-svg-icons"
+    ;
 import { useNavigate } from "react-router-dom";
 import ServiceRequestModal from "../../../components/ui/modals/service-request-modal/ServiceRequestModal.jsx";
 

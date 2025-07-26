@@ -1,27 +1,37 @@
 import styled from 'styled-components';
+import {
+    paletteColors,
+    fontSizes,
+    fontFamilies,
+    fontWeights,
+} from "../../../styles/Root";
+
 
 const Container = styled.div`
-    background: #f9fafb;
+    background: ${paletteColors.aliceBlue};
     min-height: 95vh;
     padding: 24px;
     box-sizing: border-box;
+    font-family: ${fontFamilies.primary};
 `;
 
 const Header = styled.div`
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 
-    h2 {
-        margin: 0 0 4px;
-        font-weight: 800;
-        font-size: 24px;
-        color: #111827;
-    }
+  h2 {
+    margin: 0 0 4px;
+    font-weight: ${fontWeights.extraBold};
+    font-size: ${fontSizes['2xl']};      
+    color: ${paletteColors.terciaryText}; 
+    font-family: ${fontFamilies.primary};
+  }
 
-    p {
-        margin: 0;
-        color: #6b7280;
-        font-size: 16px;
-    }
+  p {
+    margin: 0;
+    color: ${paletteColors.dimGray};       
+    font-size: ${fontSizes.base};          
+    font-family: ${fontFamilies.primary};
+  }
 `;
 
 const SummaryCards = styled.div`
@@ -32,7 +42,7 @@ const SummaryCards = styled.div`
 `;
 
 const Card = styled.div`
-    background: white;
+    background: ${paletteColors.white};
     border-radius: 12px;
     padding: 16px 20px;
     flex: 1;
@@ -44,19 +54,21 @@ const Card = styled.div`
 `;
 
 const CardInfo = styled.div`
-    span {
-        font-size: 14px;
-        font-weight: 500;
-        color: #6b7280;
-    }
+  span {
+    font-size: ${fontSizes.sm};          
+    font-weight: ${fontWeights.medium};  
+    color: ${paletteColors.dimGray};     
+    font-family: ${fontFamilies.primary};
+  }
 
-    strong {
-        font-size: 26px;
-        font-weight: 800;
-        color: #111827;
-        display: block;
-        margin-top: 4px;
-    }
+  strong {
+    font-size: ${fontSizes['3xl']};      
+    font-weight: ${fontWeights.extraBold};
+    color: ${paletteColors.terciaryText}; 
+    display: block;
+    margin-top: 4px;
+    font-family: ${fontFamilies.primary};
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -77,33 +89,35 @@ const ChartsContainer = styled.div`
 `;
 
 const ChartCard = styled.div`
-    background: white;
+    background: ${paletteColors.white};
     border-radius: 8px;
     padding: 54px;
     flex: 1;
     min-width: 425px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    background-color: #f3f3f3;
+    background-color: #f3f3f3;  
     box-sizing: border-box;
 `;
 
 const ChartFooter = styled.div`
-    margin-top: 26px;
-    line-height: 0.5;
+  margin-top: 26px;
+  line-height: 0.5;
 
-    strong {
-        display: block;
-        font-weight: 700;
-        font-size: 18px;
-    }
+  strong {
+    display: block;
+    font-weight: ${fontWeights.bold}; 
+    font-size: ${fontSizes.lg};       
+    font-family: ${fontFamilies.primary};
+  }
 
-    p {
-        color: #6b7280;
-        font-size: 16px;
-    }
+  p {
+    color: ${paletteColors.dimGray};  
+    font-size: ${fontSizes.base};    
+    font-family: ${fontFamilies.primary};
+  }
 `;
 
-const PerformanceStyle = {
+export default {
     Container,
     Header,
     SummaryCards,
@@ -114,5 +128,3 @@ const PerformanceStyle = {
     ChartCard,
     ChartFooter,
 };
-
-export default PerformanceStyle;

@@ -11,7 +11,6 @@ export const MainContent = styled.main`
     box-sizing: border-box;
 `;
 
-// Exportando tudo como um objeto com o nome AdminLayoutStyle
 const AdminLayoutStyle = {
     Container,
     MainContent,

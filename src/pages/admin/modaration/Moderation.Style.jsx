@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 
-export const Container = styled.div`
+ const Container = styled.div`
     padding: 24px;
     background: #f9fafb;
     min-height: 100vh;
     box-sizing: border-box;
 `;
 
-export const Header = styled.div`
+ const Header = styled.div`
     margin-bottom: 24px;
 
     h3 {
@@ -23,14 +23,14 @@ export const Header = styled.div`
     }
 `;
 
-export const InfoCards = styled.div`
+ const InfoCards = styled.div`
     display: flex;
     gap: 16px;
     margin-bottom: 44px;
     flex-wrap: wrap;
 `;
 
-export const Card = styled.div`
+ const Card = styled.div`
     background: #fff;
     border-radius: 8px;
     padding: 16px 20px;
@@ -63,13 +63,13 @@ export const Card = styled.div`
     }
 `;
 
-export const Sections = styled.div`
+ const Sections = styled.div`
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
 `;
 
-export const Section = styled.div`
+ const Section = styled.div`
     background: #fff;
     border-radius: 10px;
     flex: 1;
@@ -79,7 +79,7 @@ export const Section = styled.div`
     Box-sizing: border-box;
 `;
 
-export const SectionHeader = styled.div`
+ const SectionHeader = styled.div`
     margin-bottom: 16px;
 
     input {
@@ -96,7 +96,7 @@ export const SectionHeader = styled.div`
     }
 `;
 
-export const ReportCard = styled.div`
+ const ReportCard = styled.div`
     background: ${({ bg }) => bg || '#fff'};
     border: ${({ border }) => border || 'none'};
     color: ${({ color }) => color || '#333'};
@@ -126,7 +126,7 @@ export const ReportCard = styled.div`
     }
 `;
 
-export const ButtonsWrapper = styled.div`
+ const ButtonsWrapper = styled.div`
     margin-top: 12px;
 
     button {
@@ -168,7 +168,7 @@ export const ButtonsWrapper = styled.div`
     }
 `;
 
-const ModerationStyle = {
+ export default  {
     Container,
     Header,
     InfoCards,
@@ -180,4 +180,3 @@ const ModerationStyle = {
     ButtonsWrapper,
 };
 
-export default ModerationStyle;
