@@ -6,17 +6,17 @@ const Wrapper = styled.div`
     height: 100vh;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 `;
 
 
 const Container = styled.div`
     width: 75%;
-    height: auto;
-    padding: 25px 20px;
-    border-radius: 20px;
+    padding: 5px 25px;
+    border-radius: 10px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
-    max-width: 1600px;
+    max-width: 1500px;
     background-color: ${paletteColors.white};
 `;
 const BackButton = styled.button`
@@ -86,7 +86,7 @@ const Form = styled.div`
 const Column = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 5px;
     position: relative;
     width:95%;
 `;

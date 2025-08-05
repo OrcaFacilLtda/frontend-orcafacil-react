@@ -25,7 +25,7 @@ export const InputWrapper = styled.div`
 
 export const Input = styled.input`
     width: 100%;
-    height: 15px;
+    height: 5px;
     padding: 1rem;
     border: 1.5px solid ${paletteColors.roy};
     border-radius: 8px;
