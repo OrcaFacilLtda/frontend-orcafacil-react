@@ -1,48 +1,50 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
+import api from "../services/api";
 
-// Criação do contexto de autenticação
-const AuthContext = createContext(null);
+// 1. Exporte o AuthContext para que outros ficheiros o possam importar
+export const AuthContext = createContext(null);
 
-// Provedor do contexto — envolve a aplicação no main.jsx
+// 2. AuthProvider é a única exportação principal (default)
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Recupera usuário salvo no localStorage quando o app inicia
-    useEffect(() => {
+    const fetchUser = async () => {
         try {
-            const savedUser = localStorage.getItem("user");
-            if (savedUser) setUser(JSON.parse(savedUser));
+            const response = await api.get("/api/users/me");
+            setUser(response.data);
         } catch (error) {
-            console.error("Erro ao recuperar usuário do localStorage:", error);
-            localStorage.removeItem("user");
+            setUser(null);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchUser();
     }, []);
 
-    // Função para login — salva no state e localStorage
-    const login = (tipo, dados) => {
-        const userData = { tipo, ...dados };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+    const login = async (email, password) => {
+        await api.post("/login", { email, password });
+        await fetchUser();
     };
 
-    // Função para logout — limpa estado e localStorage
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem("user");
+    const logout = async () => {
+        try {
+            await api.post("/logout");
+        } finally {
+            setUser(null);
+        }
     };
+
+    if (loading) {
+        return <div>Carregando...</div>;
+    }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// Hook customizado para usar o contexto de autenticação
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
-    }
-    return context;
-};
