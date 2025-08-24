@@ -1,12 +1,11 @@
 import { useContext } from "react";
-// Importe o AuthContext diretamente do ficheiro onde ele é criado.
-// Certifique-se de exportar o AuthContext no ficheiro de contexto.
 import { AuthContext } from "../context/AuthContext.jsx";
 
+// This file now exports only the custom hook
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
 };

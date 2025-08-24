@@ -12,7 +12,7 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
     width: 75%;
-    padding: 5px 25px;
+    padding: 3px 25px;
     border-radius: 10px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
@@ -72,7 +72,7 @@ const Button = styled.button`
 const Title = styled.h2`
     color: ${paletteColors.secondaryText};
     font-weight: ${fontWeights.bold};
-    font-size: ${fontSizes['4xl']};
+    font-size: ${fontSizes['2xl']};
     font-family: ${fontFamilies.primary};
 `;
 

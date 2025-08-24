@@ -1,10 +1,10 @@
 import { createContext, useState, useEffect } from "react";
-import api from "../services/api";
+import api from "../services/api/api.js";
 
-// 1. Exporte o AuthContext para que outros ficheiros o possam importar
+// 1. Export the AuthContext so other files (like our hook) can import it
 export const AuthContext = createContext(null);
 
-// 2. AuthProvider é a única exportação principal (default)
+// 2. AuthProvider is the only default export
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -14,6 +14,8 @@ export const AuthProvider = ({ children }) => {
             const response = await api.get("/api/users/me");
             setUser(response.data);
         } catch (error) {
+            // FIX: Use the 'error' variable to provide more context in the console
+            console.error("Failed to fetch user session:", error.message);
             setUser(null);
         } finally {
             setLoading(false);
@@ -47,4 +49,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
