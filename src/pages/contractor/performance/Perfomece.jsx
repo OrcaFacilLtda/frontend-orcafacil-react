@@ -1,92 +1,102 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PerformanceStyle from "./Perfomece.Style.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faBriefcase,
-    faCheckCircle,
-    faStar
-} from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faCheckCircle, faStar } from "@fortawesome/free-solid-svg-icons";
 import { Bar, Line } from "react-chartjs-2";
+import { getProviderStats, getProviderChartData } from "../../../services/api/providerService.js";
 import {
     Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
+    CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend
 } from "chart.js";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 const PerformanceDashboard = () => {
-    const barData = {
-        labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
-        datasets: [
-            {
-                label: "Serviços",
-                data: [18, 22, 15, 28, 24, 31],
-                backgroundColor: "#3B82F6"
+    const [stats, setStats] = useState(null);
+    const [chartData, setChartData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    const MOCKED_COMPANY_ID = 1; // Num app real, o ID viria de um contexto de autenticação
+
+    useEffect(() => {
+        const fetchPerformanceData = async () => {
+            try {
+                setLoading(true);
+                const [statsData, charts] = await Promise.all([
+                    getProviderStats(MOCKED_COMPANY_ID),
+                    getProviderChartData(MOCKED_COMPANY_ID)
+                ]);
+                setStats(statsData);
+                setChartData(charts);
+                setError('');
+            } catch (err) {
+                setError("Falha ao carregar os dados de desempenho.");
+                console.error(err);
+            } finally {
+                setLoading(false);
             }
-        ]
+        };
+        fetchPerformanceData();
+    }, []);
+
+    const barData = {
+        labels: chartData?.servicesByMonthLabels || [],
+        datasets: [{
+            label: "Serviços Concluídos",
+            data: chartData?.servicesByMonthData || [],
+            backgroundColor: "#3B82F6"
+        }]
     };
 
     const lineData = {
-        labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
-        datasets: [
-            {
-                label: "Ganhos (R$)",
-                data: [3200, 4100, 2800, 5200, 4800, 6100],
-                borderColor: "#10B981",
-                backgroundColor: "#10B981",
-                fill: false
-            }
-        ]
+        labels: chartData?.earningsByMonthLabels || [],
+        datasets: [{
+            label: "Ganhos (R$)",
+            data: chartData?.earningsByMonthData || [],
+            borderColor: "#10B981",
+            backgroundColor: "#10B981",
+            fill: false
+        }]
     };
+
+    if (loading) {
+        return <PerformanceStyle.Container>A carregar...</PerformanceStyle.Container>;
+    }
+    if (error) {
+        return <PerformanceStyle.Container>{error}</PerformanceStyle.Container>;
+    }
 
     return (
         <PerformanceStyle.Container>
             <PerformanceStyle.Header>
                 <h2>Desempenho</h2>
-                <p>Acompanhe suas métricas e resultados</p>
+                <p>Acompanhe as suas métricas e resultados</p>
             </PerformanceStyle.Header>
 
             <PerformanceStyle.SummaryCards>
                 <PerformanceStyle.Card>
                     <PerformanceStyle.CardInfo>
                         <span>Total de Serviços</span>
-                        <strong>127</strong>
+                        <strong>{stats?.totalServices ?? 0}</strong>
                     </PerformanceStyle.CardInfo>
                     <PerformanceStyle.IconWrapper bg="#DBEAFE" color="#1D4ED8">
                         <FontAwesomeIcon icon={faBriefcase} />
                     </PerformanceStyle.IconWrapper>
                 </PerformanceStyle.Card>
-
                 <PerformanceStyle.Card>
                     <PerformanceStyle.CardInfo>
                         <span>Taxa de Aceitação</span>
-                        <strong>84%</strong>
+                        <strong>{stats?.acceptanceRate.toFixed(1) ?? 0}%</strong>
                     </PerformanceStyle.CardInfo>
                     <PerformanceStyle.IconWrapper bg="#D1FAE5" color="#047857">
                         <FontAwesomeIcon icon={faCheckCircle} />
                     </PerformanceStyle.IconWrapper>
                 </PerformanceStyle.Card>
-
                 <PerformanceStyle.Card>
                     <PerformanceStyle.CardInfo>
                         <span>Nota Média</span>
-                        <strong>4.8</strong>
+                        <strong>{stats?.averageRating?.toFixed(1) ?? 'N/A'}</strong>
                     </PerformanceStyle.CardInfo>
                     <PerformanceStyle.IconWrapper bg="#FEF9C3" color="#CA8A04">
                         <FontAwesomeIcon icon={faStar} />
@@ -98,11 +108,10 @@ const PerformanceDashboard = () => {
                 <PerformanceStyle.ChartCard>
                     <Bar data={barData} />
                     <PerformanceStyle.ChartFooter>
-                        <strong>Serviços por Mês</strong>
-                        <p>Histórico dos últimos 6 meses</p>
+                        <strong>Serviços Concluídos por Mês</strong>
+                        <p>Histórico dos últimos meses</p>
                     </PerformanceStyle.ChartFooter>
                 </PerformanceStyle.ChartCard>
-
                 <PerformanceStyle.ChartCard>
                     <Line data={lineData} />
                     <PerformanceStyle.ChartFooter>

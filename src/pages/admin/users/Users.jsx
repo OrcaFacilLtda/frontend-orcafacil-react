@@ -1,92 +1,111 @@
-import React, { useState } from 'react';
+// src/pages/admin/users/Users.jsx
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import UsersStyle from './Users.Style.jsx';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faSearch } from '@fortawesome/free-solid-svg-icons';
 
-import UserAuthorizationModal from '../../../components/ui/modals/user-authorization-modal/UserAuthorizationModal.jsx';
-import EditUserModal from '../../../components/ui/modals/edit-user-modal/EditUserModal.jsx'; // importar modal de edição
+import { getAllUsers, getUsersByStatus, updateUserStatus, deleteUser } from '../../../services/api/adminService';
+
+// Remova os modais de edição por enquanto para focar na aprovação
+// import UserAuthorizationModal from '../../../components/ui/modals/user-authorization-modal/UserAuthorizationModal.jsx';
+// import EditUserModal from '../../../components/ui/modals/edit-user-modal/EditUserModal.jsx';
 
 export default function Users() {
-    const [isAuthorizationModalOpen, setIsAuthorizationModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [selectedUserType, setSelectedUserType] = useState(null); // para controlar tipo (cliente/prestador)
+    const [pendingUsers, setPendingUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const usersToApprove = [
-        {
-            id: 1,
-            name: 'Fernando Henrique',
-            email: 'henrique@gmail.com',
-            role: 'Cliente',
-            phone: '',
-            birthDate: '',
-            status: 'pendente',
-        },
-        {
-            id: 2,
-            name: 'Fernando Henrique',
-            email: 'henrique@gmail.com',
-            role: 'Prestador',
-            phone: '',
-            birthDate: '',
-            status: 'pendente',
-        },
-    ];
-
-    const usersInSystem = [
-        {
-            id: 1,
-            name: 'Fernando Henrique',
-            email: 'henrique@gmail.com',
-            role: 'Cliente',
-        },
-        {
-            id: 2,
-            name: 'Fernando Henrique',
-            email: 'henrique@gmail.com',
-            role: 'Prestador',
-        },
-    ];
-
-    // Abrir modal de autorização (analisar)
-    const handleAnalyze = (user) => {
-        setSelectedUser(user);
-        setIsAuthorizationModalOpen(true);
+    const fetchAllData = async () => {
+        try {
+            setLoading(true);
+            const [pending, all] = await Promise.all([
+                getUsersByStatus('PENDING'),
+                getAllUsers()
+            ]);
+            setPendingUsers(pending || []);
+            // Filtra os usuários que não estão pendentes para a lista principal
+            setAllUsers(all.filter(user => user.status !== 'PENDING') || []);
+        } catch (error) {
+            Swal.fire('Erro!', 'Não foi possível carregar os usuários.', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Abrir modal de edição
-    const handleEdit = (user) => {
-        setSelectedUser(user);
-        setSelectedUserType(user.role.toLowerCase()); // 'cliente' ou 'prestador'
-        setIsEditModalOpen(true);
+    useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    const handleApprove = async (user) => {
+        try {
+            await updateUserStatus(user.id, 'APPROVED');
+            Swal.fire('Aprovado!', `${user.name} foi aprovado com sucesso.`, 'success');
+            fetchAllData(); // Recarrega as listas
+        } catch (error) {
+            Swal.fire('Erro!', 'Não foi possível aprovar o usuário.', 'error');
+        }
     };
 
-    // Fechar modal de autorização
-    const closeAuthorizationModal = () => {
-        setIsAuthorizationModalOpen(false);
-        setSelectedUser(null);
+    const handleReject = async (user) => {
+        // No backend, a rejeição pode ser um status 'REJECTED' ou simplesmente deletar.
+        // Vamos usar a deleção para simplificar.
+        Swal.fire({
+            title: 'Confirmar Rejeição',
+            text: `Tem certeza que deseja rejeitar e apagar o cadastro de ${user.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Sim, rejeitar!',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleteUser(user.id);
+                    Swal.fire('Rejeitado!', 'O usuário foi rejeitado e removido.', 'success');
+                    fetchAllData(); // Recarrega as listas
+                } catch (error) {
+                    Swal.fire('Erro!', 'Não foi possível rejeitar o usuário.', 'error');
+                }
+            }
+        });
     };
 
-    // Fechar modal de edição
-    const closeEditModal = () => {
-        setIsEditModalOpen(false);
-        setSelectedUser(null);
-        setSelectedUserType(null);
+    const handleDelete = async (user) => {
+        Swal.fire({
+            title: 'Apagar Usuário',
+            text: `Esta ação é irreversível. Deseja apagar permanentemente ${user.name}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Sim, apagar!',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleteUser(user.id);
+                    Swal.fire('Apagado!', 'O usuário foi removido do sistema.', 'success');
+                    fetchAllData(); // Recarrega as listas
+                } catch (error) {
+                    Swal.fire('Erro!', 'Não foi possível apagar o usuário.', 'error');
+                }
+            }
+        });
     };
+
 
     return (
         <UsersStyle.Container>
             <UsersStyle.Header>
                 <h2>Usuários</h2>
-                <p>Gerencie os usuários do sistemas</p>
+                <p>Gerencie os usuários do sistema</p>
             </UsersStyle.Header>
 
             <UsersStyle.InfoCards>
                 <UsersStyle.Card>
                     <UsersStyle.CardInfo>
-                        <span>Usuários na fila de aceitação</span>
-                        <strong>{usersToApprove.length}</strong>
+                        <span>Aguardando aprovação</span>
+                        <strong>{pendingUsers.length}</strong>
                     </UsersStyle.CardInfo>
                     <UsersStyle.IconWrapper>
                         <FontAwesomeIcon icon={faUsers} />
@@ -95,81 +114,46 @@ export default function Users() {
             </UsersStyle.InfoCards>
 
             <UsersStyle.Sections>
-                {/* Seção: Aguardando Aprovação */}
                 <UsersStyle.Section>
                     <UsersStyle.SectionHeader>
                         <h4>Usuários aguardando aprovação:</h4>
-                        <UsersStyle.SearchInputWrapper>
-                            <FontAwesomeIcon icon={faSearch} />
-                            <input type="text" placeholder="Procurar por nome" />
-                        </UsersStyle.SearchInputWrapper>
                     </UsersStyle.SectionHeader>
-
-                    <UsersStyle.List>
-                        {usersToApprove.map((user) => (
-                            <UsersStyle.ListItem key={user.id}>
-                                <strong>{user.name} - {user.role}</strong>
-                                <p>{user.email}</p>
-                                <UsersStyle.ButtonsWrapper>
-                                    <button className="btn-analyze" onClick={() => handleAnalyze(user)}>Analisar</button>
-                                    <button className="btn-reject">Rejeitar</button>
-                                </UsersStyle.ButtonsWrapper>
-                            </UsersStyle.ListItem>
-                        ))}
-                    </UsersStyle.List>
+                    {loading ? <p>Carregando...</p> : (
+                        <UsersStyle.List>
+                            {pendingUsers.map((user) => (
+                                <UsersStyle.ListItem key={user.id}>
+                                    <strong>{user.name} - {user.userType}</strong>
+                                    <p>{user.email}</p>
+                                    <UsersStyle.ButtonsWrapper>
+                                        <button className="btn-analyze" onClick={() => handleApprove(user)}>Aprovar</button>
+                                        <button className="btn-reject" onClick={() => handleReject(user)}>Rejeitar</button>
+                                    </UsersStyle.ButtonsWrapper>
+                                </UsersStyle.ListItem>
+                            ))}
+                        </UsersStyle.List>
+                    )}
                 </UsersStyle.Section>
 
-                {/* Seção: Lista completa */}
                 <UsersStyle.Section border>
                     <UsersStyle.SectionHeader>
                         <h4>Lista de Usuários no Sistema</h4>
-                        <UsersStyle.SearchInputWrapper>
-                            <FontAwesomeIcon icon={faSearch} />
-                            <input type="text" placeholder="Procurar por nome" />
-                        </UsersStyle.SearchInputWrapper>
                     </UsersStyle.SectionHeader>
-
-                    <UsersStyle.List>
-                        {usersInSystem.map((user) => (
-                            <UsersStyle.ListItem key={user.id}>
-                                <strong>{user.name} - {user.role}</strong>
-                                <p>{user.email}</p>
-                                <UsersStyle.ButtonsWrapper>
-                                    <button className="btn-edit" onClick={() => handleEdit(user)}>Editar</button>
-                                    <button className="btn-delete">Apagar</button>
-                                </UsersStyle.ButtonsWrapper>
-                            </UsersStyle.ListItem>
-                        ))}
-                    </UsersStyle.List>
+                    {loading ? <p>Carregando...</p> : (
+                        <UsersStyle.List>
+                            {allUsers.map((user) => (
+                                <UsersStyle.ListItem key={user.id}>
+                                    <strong>{user.name} - {user.userType} ({user.status})</strong>
+                                    <p>{user.email}</p>
+                                    <UsersStyle.ButtonsWrapper>
+                                        <button className="btn-edit" >Editar</button>
+                                        <button className="btn-delete" onClick={() => handleDelete(user)}>Apagar</button>
+                                    </UsersStyle.ButtonsWrapper>
+                                </UsersStyle.ListItem>
+                            ))}
+                        </UsersStyle.List>
+                    )}
                 </UsersStyle.Section>
             </UsersStyle.Sections>
-
-            {/* Modal de autorização */}
-            <UserAuthorizationModal
-                isOpen={isAuthorizationModalOpen}
-                onClose={closeAuthorizationModal}
-                user={selectedUser}
-                onSubmit={() => {
-                    console.log("Usuário autorizado:", selectedUser);
-                    closeAuthorizationModal();
-                }}
-            />
-
-            {/* Modal de edição */}
-            <EditUserModal
-                isOpen={isEditModalOpen}
-                onClose={closeEditModal}
-                user={selectedUser}
-                userType={selectedUserType}  // 'cliente' ou 'prestador'
-                onSave={() => {
-                    console.log("Usuário editado:", selectedUser);
-                    closeEditModal();
-                }}
-                onDelete={() => {
-                    console.log("Usuário apagado:", selectedUser);
-                    closeEditModal();
-                }}
-            />
         </UsersStyle.Container>
     );
 }

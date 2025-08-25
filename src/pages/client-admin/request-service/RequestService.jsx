@@ -1,129 +1,101 @@
-import React, { useState } from "react";
+// src/pages/client-admin/request-service/RequestService.jsx
+import React, { useState, useEffect } from "react";
 import RequestServiceStyle from "./RequestService.Style.jsx";
-
-import { summaryData, recentServices } from "./Request.jsx";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments, faSearch } from "@fortawesome/free-solid-svg-icons"
-    ;
+import { faComments, faSearch, faFileAlt, faThumbsUp, faHourglassHalf, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import ServiceRequestModal from "../../../components/ui/modals/service-request-modal/ServiceRequestModal.jsx";
+import { getActiveProviders, getProviderStats } from "../../../services/api/providerService.js";
 
 const RequestService = ({ isClient = false }) => {
     const navigate = useNavigate();
-    const [nameFilter, setNameFilter] = useState("");
-    const [categoryFilter, setCategoryFilter] = useState("");
+    const [listData, setListData] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    const [showModal, setShowModal] = useState(false);
-    const [selectedServiceId, setSelectedServiceId] = useState(null);
+    const MOCKED_PROVIDER_COMPANY_ID = 1;
 
-    const handleViewService = (id) => {
-        navigate(`/provider/services/${id}`);
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError('');
+                if (isClient) {
+                    const providers = await getActiveProviders();
+                    setListData(providers);
+                } else {
+                    const providerStats = await getProviderStats(MOCKED_PROVIDER_COMPANY_ID);
+                    setStats(providerStats);
+                    setListData(providerStats.newRequests || []);
+                }
+            } catch (err) {
+                setError("Falha ao carregar dados. Tente novamente mais tarde.");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [isClient]);
 
-    const handleHire = (id) => {
-        setSelectedServiceId(id);
-        setShowModal(true);
-    };
+    const handleViewService = (id) => navigate(`/provider/services/${id}`);
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setSelectedServiceId(null);
-    };
+    const summaryData = [
+        { title: "Novos Pedidos", value: stats?.newRequests?.length ?? 0, icon: <FontAwesomeIcon icon={faFileAlt} />, color: "#DBEAFE" },
+        { title: "Aceites Hoje", value: stats?.acceptedToday?.length ?? 0, icon: <FontAwesomeIcon icon={faThumbsUp} />, color: "#dbf9eb" },
+        { title: "Pendentes", value: stats?.pendingServices?.length ?? 0, icon: <FontAwesomeIcon icon={faHourglassHalf} />, color: "#fff5db" },
+        { title: "Taxa Aceitação", value: `${stats?.acceptanceRate.toFixed(0) ?? 0}%`, icon: <FontAwesomeIcon icon={faChartLine} />, color: "#f4e8ff" },
+    ];
 
-    const filteredServices = recentServices.filter((s) => {
-        const matchName = s.client.toLowerCase().includes(nameFilter.toLowerCase());
-        const matchCategory = categoryFilter ? s.service === categoryFilter : true;
-        return matchName && matchCategory;
-    });
+    if (loading) return <RequestServiceStyle.Container>A carregar...</RequestServiceStyle.Container>;
+    if (error) return <RequestServiceStyle.Container><p style={{color: 'red'}}>{error}</p></RequestServiceStyle.Container>;
 
     return (
-        <>
-            <RequestServiceStyle.Container>
-                <RequestServiceStyle.Header>
-                    <h2>{isClient ? "Prestadores" : "Serviços"}</h2>
-                    <p>{isClient
-                        ? "Encontre o profissional ideal para seu serviço"
-                        : "Gerencie suas solicitações de orçamento"}
-                    </p>
-                </RequestServiceStyle.Header>
+        <RequestServiceStyle.Container>
+            <RequestServiceStyle.Header>
+                <h2>{isClient ? "Prestadores" : "Serviços"}</h2>
+                <p>{isClient ? "Encontre o profissional ideal para o seu serviço" : "Gerencie as suas solicitações de orçamento"}</p>
+            </RequestServiceStyle.Header>
 
-                {!isClient && (
-                    <RequestServiceStyle.SummaryGrid>
-                        {summaryData.map((item, i) => (
-                            <RequestServiceStyle.SummaryItem key={i}>
-                                <RequestServiceStyle.TextContainer>
-                                    <RequestServiceStyle.SummaryTitle>{item.title}</RequestServiceStyle.SummaryTitle>
-                                    <RequestServiceStyle.SummaryValue>{item.value}</RequestServiceStyle.SummaryValue>
-                                </RequestServiceStyle.TextContainer>
-                                <RequestServiceStyle.SummaryIcon color={item.color}>
-                                    {item.icon}
-                                </RequestServiceStyle.SummaryIcon>
-                            </RequestServiceStyle.SummaryItem>
-                        ))}
-                    </RequestServiceStyle.SummaryGrid>
-                )}
-
-                <RequestServiceStyle.RecentArea>
-                    <RequestServiceStyle.RecentTitle>
-                        {isClient ? "Profissionais disponíveis" : "Solicitações Recentes"}
-                    </RequestServiceStyle.RecentTitle>
-
-                    <RequestServiceStyle.FilterBox>
-                        <RequestServiceStyle.Input
-                            type="text"
-                            placeholder="Pesquisar por nome"
-                            value={nameFilter}
-                            onChange={(e) => setNameFilter(e.target.value)}
-                        />
-                        <RequestServiceStyle.Select
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                        >
-                            <option value="">Selecione uma categoria</option>
-                            <option value="Instalação Elétrica">Instalação Elétrica</option>
-                            <option value="Reparo de Tomadas">Reparo de Tomadas</option>
-                        </RequestServiceStyle.Select>
-                        <RequestServiceStyle.FilterButton>
-                            <FontAwesomeIcon icon={faSearch} />
-                            Filtrar
-                        </RequestServiceStyle.FilterButton>
-                    </RequestServiceStyle.FilterBox>
-
-                    <RequestServiceStyle.ServiceList>
-                        {filteredServices.map((s, i) => (
-                            <RequestServiceStyle.ServiceItem key={i}>
-                                <RequestServiceStyle.Avatar src={s.avatar} />
-                                <RequestServiceStyle.ServiceInfo>
-                                    <RequestServiceStyle.ClientName>{s.client}</RequestServiceStyle.ClientName>
-                                    <RequestServiceStyle.ServiceName>{s.service}</RequestServiceStyle.ServiceName>
-                                    <RequestServiceStyle.ServiceTime>{s.time}</RequestServiceStyle.ServiceTime>
-                                </RequestServiceStyle.ServiceInfo>
-
-                                {isClient ? (
-                                    <RequestServiceStyle.HireButton onClick={() => handleHire(s.id)}>
-                                        Contratar
-                                    </RequestServiceStyle.HireButton>
-                                ) : (
-                                    <RequestServiceStyle.ViewButton onClick={() => handleViewService(s.id)}>
-                                        <FontAwesomeIcon icon={faComments} /> Ver serviço
-                                    </RequestServiceStyle.ViewButton>
-                                )}
-                            </RequestServiceStyle.ServiceItem>
-                        ))}
-                    </RequestServiceStyle.ServiceList>
-                </RequestServiceStyle.RecentArea>
-            </RequestServiceStyle.Container>
-
-            {/* Modal de solicitação de serviço */}
-            {showModal && (
-                <ServiceRequestModal
-                    isOpen={showModal}
-                    onClose={handleCloseModal}
-                    serviceId={selectedServiceId}
-                />
+            {!isClient && (
+                <RequestServiceStyle.SummaryGrid>
+                    {summaryData.map((item, i) => (
+                        <RequestServiceStyle.SummaryItem key={i}>
+                            <RequestServiceStyle.TextContainer>
+                                <RequestServiceStyle.SummaryTitle>{item.title}</RequestServiceStyle.SummaryTitle>
+                                <RequestServiceStyle.SummaryValue>{item.value}</RequestServiceStyle.SummaryValue>
+                            </RequestServiceStyle.TextContainer>
+                            <RequestServiceStyle.SummaryIcon color={item.color}>{item.icon}</RequestServiceStyle.SummaryIcon>
+                        </RequestServiceStyle.SummaryItem>
+                    ))}
+                </RequestServiceStyle.SummaryGrid>
             )}
-        </>
+
+            <RequestServiceStyle.RecentArea>
+                <RequestServiceStyle.RecentTitle>
+                    {isClient ? "Profissionais disponíveis" : "Solicitações Recentes"}
+                </RequestServiceStyle.RecentTitle>
+
+                <RequestServiceStyle.ServiceList>
+                    {listData.map((item, i) => (
+                        <RequestServiceStyle.ServiceItem key={i}>
+                            <RequestServiceStyle.Avatar src={`https://i.pravatar.cc/48?img=${i+1}`} />
+                            <RequestServiceStyle.ServiceInfo>
+                                <RequestServiceStyle.ClientName>{item.user.name}</RequestServiceStyle.ClientName>
+                                <RequestServiceStyle.ServiceName>{isClient ? item.category.name : item.description}</RequestServiceStyle.ServiceName>
+                                {!isClient && <RequestServiceStyle.ServiceTime>{new Date(item.requestDate).toLocaleDateString()}</RequestServiceStyle.ServiceTime>}
+                            </RequestServiceStyle.ServiceInfo>
+                            {!isClient && (
+                                <RequestServiceStyle.ViewButton onClick={() => handleViewService(item.id)}>
+                                    <FontAwesomeIcon icon={faComments} /> Ver serviço
+                                </RequestServiceStyle.ViewButton>
+                            )}
+                        </RequestServiceStyle.ServiceItem>
+                    ))}
+                </RequestServiceStyle.ServiceList>
+            </RequestServiceStyle.RecentArea>
+        </RequestServiceStyle.Container>
     );
 };
 

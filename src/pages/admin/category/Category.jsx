@@ -1,26 +1,39 @@
-import React, { useState } from 'react';
+// src/pages/admin/category/Category.jsx
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import CategoryStyle from './Category.Style.jsx';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faSearch } from '@fortawesome/free-solid-svg-icons';
-
 import EditCategoryModal from '../../../components/ui/modals/edit-category-modal/EditCategoryModal.jsx';
+import {
+    getAllCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory
+} from '../../../services/api/categoryService';
 
 export default function Category() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [newCategory, setNewCategory] = useState({ name: '', description: '' });
 
-    const [categories, setCategories] = useState([
-        { id: 1, name: 'Negócios', description: 'Categoria de negócios', status: 'ativo' },
-        { id: 2, name: 'Eletricista', description: 'Serviços elétricos', status: 'inativo' },
-        { id: 3, name: 'Fernando Henrique', description: 'Outros serviços', status: 'ativo' },
-    ]);
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            const data = await getAllCategories();
+            setCategories(data || []);
+        } catch (error) {
+            Swal.fire('Erro!', 'Não foi possível carregar as categorias.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const [newCategory, setNewCategory] = useState({
-        name: '',
-        description: '',
-        status: '',
-    });
+    useEffect(() => {
+        fetchCategories();
+    }, []);
 
     const handleEditClick = (category) => {
         setSelectedCategory(category);
@@ -32,37 +45,55 @@ export default function Category() {
         setSelectedCategory(null);
     };
 
-    const handleCategoryUpdate = (updatedCategory) => {
-        setCategories((prev) =>
-            prev.map((cat) => (cat.id === updatedCategory.id ? updatedCategory : cat))
-        );
-        handleModalClose();
+    const handleCategoryUpdate = async (updatedCategory) => {
+        try {
+            await updateCategory(updatedCategory.id, updatedCategory);
+            Swal.fire('Sucesso!', 'Categoria atualizada.', 'success');
+            fetchCategories(); // Recarrega a lista
+            handleModalClose();
+        } catch (error) {
+            Swal.fire('Erro!', 'Não foi possível atualizar a categoria.', 'error');
+        }
     };
 
     const handleDeleteCategory = (id) => {
-        const confirmed = window.confirm('Tem certeza que deseja apagar esta categoria?');
-        if (confirmed) {
-            setCategories((prev) => prev.filter((cat) => cat.id !== id));
-        }
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Você não poderá reverter isso!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, apagar!',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleteCategory(id);
+                    Swal.fire('Apagada!', 'A categoria foi apagada.', 'success');
+                    fetchCategories(); // Recarrega a lista
+                } catch (error) {
+                    Swal.fire('Erro!', 'Não foi possível apagar a categoria.', 'error');
+                }
+            }
+        });
     };
 
-    const handleCreateCategory = () => {
-        const { name, description, status } = newCategory;
-        if (!name || !status) {
-            alert('Preencha todos os campos obrigatórios.');
+    const handleCreateCategory = async () => {
+        const { name, description } = newCategory;
+        if (!name.trim()) {
+            Swal.fire('Atenção', 'O nome da categoria é obrigatório.', 'warning');
             return;
         }
 
-        const newCat = {
-            id: categories.length + 1,
-            name,
-            description,
-            status,
-        };
-
-        setCategories([...categories, newCat]);
-
-        setNewCategory({ name: '', description: '', status: '' });
+        try {
+            await createCategory({ name, description });
+            Swal.fire('Criada!', 'Nova categoria adicionada com sucesso.', 'success');
+            setNewCategory({ name: '', description: '' }); // Limpa o formulário
+            fetchCategories(); // Recarrega a lista
+        } catch (error) {
+            Swal.fire('Erro!', 'Não foi possível criar a categoria.', 'error');
+        }
     };
 
     const handleInputChange = (e) => {
@@ -74,7 +105,7 @@ export default function Category() {
         <CategoryStyle.Container>
             <CategoryStyle.Header>
                 <h2>Categorias</h2>
-                <p>Crie categorias de serviço</p>
+                <p>Crie e gerencie as categorias de serviço da plataforma</p>
             </CategoryStyle.Header>
 
             <CategoryStyle.InfoCards>
@@ -93,69 +124,54 @@ export default function Category() {
                 <CategoryStyle.Section>
                     <CategoryStyle.SectionHeader>
                         <h2>Categorias existentes</h2>
-                        <CategoryStyle.SearchInputWrapper>
-                            <FontAwesomeIcon icon={faSearch} />
-                            <input type="text" placeholder="Pesquisar por nome" />
-                        </CategoryStyle.SearchInputWrapper>
+                        {/* A lógica de filtro pode ser implementada aqui */}
                     </CategoryStyle.SectionHeader>
-
-                    <CategoryStyle.List>
-                        {categories.map((category) => (
-                            <CategoryStyle.ListItem key={category.id}>
-                                <strong>{category.name}</strong>
-                                <CategoryStyle.ButtonsWrapper>
-                                    <button onClick={() => handleEditClick(category)}>Editar</button>
-                                    <button onClick={() => handleDeleteCategory(category.id)}>Apagar</button>
-                                </CategoryStyle.ButtonsWrapper>
-                            </CategoryStyle.ListItem>
-                        ))}
-                    </CategoryStyle.List>
+                    {loading ? <p>Carregando categorias...</p> : (
+                        <CategoryStyle.List>
+                            {categories.map((category) => (
+                                <CategoryStyle.ListItem key={category.id}>
+                                    <div>
+                                        <strong>{category.name}</strong>
+                                        <p>{category.description}</p>
+                                    </div>
+                                    <CategoryStyle.ButtonsWrapper>
+                                        <button onClick={() => handleEditClick(category)}>Editar</button>
+                                        <button onClick={() => handleDeleteCategory(category.id)}>Apagar</button>
+                                    </CategoryStyle.ButtonsWrapper>
+                                </CategoryStyle.ListItem>
+                            ))}
+                        </CategoryStyle.List>
+                    )}
                 </CategoryStyle.Section>
 
                 <CategoryStyle.Section>
                     <h2>Nova Categoria</h2>
                     <CategoryStyle.Form>
                         <CategoryStyle.FormGroup>
-                            <label>Nome da Categoria </label>
+                            <label>Nome da Categoria</label>
                             <input
-                                type="text"
-                                name="name"
-                                value={newCategory.name}
-                                onChange={handleInputChange}
-                                placeholder="Nome"
+                                type="text" name="name"
+                                value={newCategory.name} onChange={handleInputChange}
+                                placeholder="Ex: Eletricista"
                             />
                         </CategoryStyle.FormGroup>
 
                         <CategoryStyle.FormGroup>
                             <label>Descrição</label>
                             <input
-                                type="text"
-                                name="description"
-                                value={newCategory.description}
-                                onChange={handleInputChange}
-                                placeholder="Descrição"
+                                type="text" name="description"
+                                value={newCategory.description} onChange={handleInputChange}
+                                placeholder="Ex: Serviços de instalação e reparo elétrico"
                             />
                         </CategoryStyle.FormGroup>
 
-                        <CategoryStyle.FormGroup>
-                            <label>Status</label>
-                            <input
-                                type="text"
-                                name="status"
-                                value={newCategory.status}
-                                onChange={handleInputChange}
-                                placeholder="Status (ativo/inativo)"
-                            />
-                        </CategoryStyle.FormGroup>
-
-                        <CategoryStyle.ButtonCreate onClick={handleCreateCategory}>
+                        <CategoryStyle.ButtonCreate type="button" onClick={handleCreateCategory}>
                             Criar Categoria
                         </CategoryStyle.ButtonCreate>
                     </CategoryStyle.Form>
                 </CategoryStyle.Section>
             </CategoryStyle.Sections>
 
-            {/* Modal de edição */}
             <EditCategoryModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}

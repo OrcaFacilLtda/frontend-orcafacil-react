@@ -1,68 +1,90 @@
-import React, { useState } from "react";
+// src/pages/client-admin/order-process/OrderProcess.jsx
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import OrderProcessStyle from "./OrderProcess.Style.jsx";
 import OrderSteps from "../../../components/section/order-steps/OrderSteps.jsx";
+import { getServiceDetails } from "../../../services/api/oderService.js";
 import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const ServiceTracking = ({ isProvider = false }) => {
+// Mapeamento de Status do Backend para Etapa numérica do Frontend
+const statusToStepMap = {
+    'REQUEST_SENT': 1,
+    'NEGOTIATING_VISIT': 2,
+    'VISIT_CONFIRMED': 3,
+    'NEGOTIATING_DATES': 3, // Mesma etapa visual de 'Enviar Prazo'
+    'DATES_CONFIRMED': 4,
+    'BUDGET_IN_NEGOTIATION': 4, // Mesma etapa visual de 'Orçamento'
+    'BUDGET_REVISION_REQUESTED': 4,
+    'IN_PROGRESS': 5,
+    'COMPLETED': 6,
+    'REJECTED': -1, // Estado de falha
+};
 
 
-    const [currentStep, setCurrentStep] = useState(2);
-    const [confirmations, setConfirmations] = useState({
-        1: { client: true, provider: true },
-        2: { client: false, provider: false },
-    });
+const OrderProcess = ({ isProvider = false }) => {
+    const { id } = useParams();
+    const [service, setService] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    // Simulated data
-    const client = {
-        name: "Carlos Oliveira",
-        address: "Rua X, SP",
-        phone: "+5511999999999",
-        email: "carlos@email.com",
-        avatar: "https://i.pravatar.cc/80?img=12",
+    // IDs mockados - em um app real, viriam do contexto de autenticação (useAuth)
+    const MOCKED_LOGGED_IN_USER_ID = 1;
+
+    const fetchService = async () => {
+        try {
+            setLoading(true);
+            const data = await getServiceDetails(id);
+            setService(data);
+            setError('');
+        } catch (err) {
+            setError("Falha ao carregar os detalhes do processo.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const provider = {
-        name: "Fernanda Lima",
-        address: "Av. Y, SP",
-        phone: "+5511988888888",
-        email: "fernanda@email.com",
-        avatar: "https://i.pravatar.cc/80?img=24",
-    };
+    useEffect(() => {
+        fetchService();
+    }, [id]);
 
-    // Display opposite role
-    const personToShow = isProvider ? client : provider;
+    if (loading) return <OrderProcessStyle.Container>Carregando...</OrderProcessStyle.Container>;
+    if (error) return <OrderProcessStyle.Container><p style={{ color: 'red' }}>{error}</p></OrderProcessStyle.Container>;
+    if (!service) return <OrderProcessStyle.Container>Serviço não encontrado.</OrderProcessStyle.Container>;
+
+    const personToShow = isProvider ? service.user : service.company;
+    const currentStep = statusToStepMap[service.serviceStatus] || 0;
 
     return (
         <OrderProcessStyle.Container>
             <OrderProcessStyle.Header>
                 <OrderProcessStyle.TitleSection>
-                    <OrderProcessStyle.Title>Service Tracking</OrderProcessStyle.Title>
-                    <OrderProcessStyle.Subtitle>Request #12345 – Electrical Installation</OrderProcessStyle.Subtitle>
+                    <OrderProcessStyle.Title>Acompanhamento do Serviço</OrderProcessStyle.Title>
+                    <OrderProcessStyle.Subtitle>Solicitação #{service.id} – {service.description.substring(0, 50)}...</OrderProcessStyle.Subtitle>
                 </OrderProcessStyle.TitleSection>
-
-                <OrderProcessStyle.HeaderButtons>
-                    <OrderProcessStyle.RejectButton>× Reject</OrderProcessStyle.RejectButton>
-                    <OrderProcessStyle.StatusBadge>⚠ In Progress</OrderProcessStyle.StatusBadge>
-                </OrderProcessStyle.HeaderButtons>
+                <OrderProcessStyle.StatusBadge>{service.serviceStatus.replace('_', ' ')}</OrderProcessStyle.StatusBadge>
             </OrderProcessStyle.Header>
 
             <OrderProcessStyle.Content>
                 <OrderProcessStyle.LeftPanel>
-                    <h3>Service Steps</h3>
+                    <h3>Etapas do Serviço</h3>
                     <OrderSteps
+                        serviceData={service}
                         currentStep={currentStep}
-                        confirmations={confirmations}
-                        isPrestador={isProvider}
+                        isProvider={isProvider}
+                        userId={MOCKED_LOGGED_IN_USER_ID}
+                        onUpdate={fetchService} // Passa a função para recarregar os dados
                     />
                 </OrderProcessStyle.LeftPanel>
 
                 <OrderProcessStyle.RightPanel>
                     <OrderProcessStyle.Card>
                         <OrderProcessStyle.PersonInfo>
-                            <OrderProcessStyle.PersonImage src={personToShow.avatar} alt={personToShow.name} />
-                            <OrderProcessStyle.PersonName>{personToShow.name}</OrderProcessStyle.PersonName>
-                            <OrderProcessStyle.PersonAddress>{personToShow.address}</OrderProcessStyle.PersonAddress>
+                            <OrderProcessStyle.PersonImage src={`https://i.pravatar.cc/80?img=${personToShow.id}`} alt={personToShow.name} />
+                            <OrderProcessStyle.PersonName>{isProvider ? personToShow.name : personToShow.legalName}</OrderProcessStyle.PersonName>
+                            <OrderProcessStyle.PersonAddress>{personToShow.address?.city}, {personToShow.address?.state}</OrderProcessStyle.PersonAddress>
                             <OrderProcessStyle.ContactButton phone href={`tel:${personToShow.phone}`}>
                                 <FontAwesomeIcon icon={faPhone} /> {personToShow.phone}
                             </OrderProcessStyle.ContactButton>
@@ -74,41 +96,8 @@ const ServiceTracking = ({ isProvider = false }) => {
 
                     <OrderProcessStyle.Card>
                         <OrderProcessStyle.ServiceDetails>
-                            <OrderProcessStyle.ServiceRow>
-                                <OrderProcessStyle.ServiceLabel>Status:</OrderProcessStyle.ServiceLabel>
-                                <OrderProcessStyle.ServiceValue>In Progress</OrderProcessStyle.ServiceValue>
-                            </OrderProcessStyle.ServiceRow>
-                            <OrderProcessStyle.ServiceRow>
-                                <OrderProcessStyle.ServiceLabel>Deadline:</OrderProcessStyle.ServiceLabel>
-                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
-                            </OrderProcessStyle.ServiceRow>
-                            <OrderProcessStyle.ServiceRow>
-                                <OrderProcessStyle.ServiceLabel>Start:</OrderProcessStyle.ServiceLabel>
-                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
-                            </OrderProcessStyle.ServiceRow>
-                            <OrderProcessStyle.ServiceRow>
-                                <OrderProcessStyle.ServiceLabel>Estimated:</OrderProcessStyle.ServiceLabel>
-                                <OrderProcessStyle.ServiceValue>None</OrderProcessStyle.ServiceValue>
-                            </OrderProcessStyle.ServiceRow>
+                            {/* ... outros detalhes ... */}
                         </OrderProcessStyle.ServiceDetails>
-                    </OrderProcessStyle.Card>
-
-                    <OrderProcessStyle.Card>
-                        <h4>Materials Used</h4>
-                        <OrderProcessStyle.MaterialsTable>
-                            <OrderProcessStyle.TableHead>
-                                <OrderProcessStyle.TableRow>
-                                    <OrderProcessStyle.TableHeader>Material</OrderProcessStyle.TableHeader>
-                                    <OrderProcessStyle.TableHeader>Qty Used</OrderProcessStyle.TableHeader>
-                                </OrderProcessStyle.TableRow>
-                            </OrderProcessStyle.TableHead>
-                            <OrderProcessStyle.TableBody>
-                                <OrderProcessStyle.TableRow>
-                                    <OrderProcessStyle.TableData>-</OrderProcessStyle.TableData>
-                                    <OrderProcessStyle.TableData>-</OrderProcessStyle.TableData>
-                                </OrderProcessStyle.TableRow>
-                            </OrderProcessStyle.TableBody>
-                        </OrderProcessStyle.MaterialsTable>
                     </OrderProcessStyle.Card>
                 </OrderProcessStyle.RightPanel>
             </OrderProcessStyle.Content>
@@ -116,4 +105,4 @@ const ServiceTracking = ({ isProvider = false }) => {
     );
 };
 
-export default ServiceTracking;
+export default OrderProcess;
