@@ -1,34 +1,25 @@
-// src/pages/client-admin/order-process/OrderProcess.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 import OrderProcessStyle from "./OrderProcess.Style.jsx";
 import OrderSteps from "../../../components/section/order-steps/OrderSteps.jsx";
 import { getServiceDetails } from "../../../services/api/oderService.js";
 import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAuth } from "../../../hooks/useAuth.js";
 
 const statusToStepMap = {
-    'REQUEST_SENT': 1,
-    'NEGOTIATING_VISIT': 2,
-    'VISIT_CONFIRMED': 3,
-    'NEGOTIATING_DATES': 3,
-    'DATES_CONFIRMED': 4,
-    'BUDGET_IN_NEGOTIATION': 4,
-    'BUDGET_REVISION_REQUESTED': 4,
-    'IN_PROGRESS': 5,
-    'COMPLETED': 6,
-    'REJECTED': -1,
+    'REQUEST_SENT': 1, 'NEGOTIATING_VISIT': 2, 'VISIT_CONFIRMED': 3,
+    'NEGOTIATING_DATES': 3, 'DATES_CONFIRMED': 4, 'BUDGET_IN_NEGOTIATION': 4,
+    'BUDGET_REVISION_REQUESTED': 4, 'IN_PROGRESS': 5, 'COMPLETED': 6, 'REJECTED': -1,
 };
 
-
-const OrderProcess = ({ isProvider = false }) => {
+const OrderProcess = () => {
+    const { user } = useAuth();
+    const isProvider = user?.userType === 'PROVIDER';
     const { id } = useParams();
     const [service, setService] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    const MOCKED_LOGGED_IN_USER_ID = 1;
 
     const fetchService = async () => {
         try {
@@ -38,19 +29,18 @@ const OrderProcess = ({ isProvider = false }) => {
             setError('');
         } catch (err) {
             setError("Falha ao carregar os detalhes do processo.");
-            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchService();
+        if(id) fetchService();
     }, [id]);
 
-    if (loading) return <OrderProcessStyle.Container>Carregando...</OrderProcessStyle.Container>;
+    if (loading) return <OrderProcessStyle.Container>A carregar...</OrderProcessStyle.Container>;
     if (error) return <OrderProcessStyle.Container><p style={{ color: 'red' }}>{error}</p></OrderProcessStyle.Container>;
-    if (!service) return <OrderProcessStyle.Container>Serviço não encontrado.</OrderProcessStyle.Container>;
+    if (!user || !service) return <OrderProcessStyle.Container>Serviço não encontrado ou utilizador não autenticado.</OrderProcessStyle.Container>;
 
     const personToShow = isProvider ? service.user : service.company;
     const currentStep = statusToStepMap[service.serviceStatus] || 0;
@@ -72,7 +62,7 @@ const OrderProcess = ({ isProvider = false }) => {
                         serviceData={service}
                         currentStep={currentStep}
                         isProvider={isProvider}
-                        userId={MOCKED_LOGGED_IN_USER_ID}
+                        userId={user.id}
                         onUpdate={fetchService}
                     />
                 </OrderProcessStyle.LeftPanel>
@@ -80,6 +70,7 @@ const OrderProcess = ({ isProvider = false }) => {
                 <OrderProcessStyle.RightPanel>
                     <OrderProcessStyle.Card>
                         <OrderProcessStyle.PersonInfo>
+                            <OrderProcessStyle.PersonImage src={`https://i.pravatar.cc/80?img=${personToShow.id}`} alt={personToShow.name} />
                             <OrderProcessStyle.PersonName>{isProvider ? personToShow.name : personToShow.legalName}</OrderProcessStyle.PersonName>
                             <OrderProcessStyle.PersonAddress>{personToShow.address?.city}, {personToShow.address?.state}</OrderProcessStyle.PersonAddress>
                             <OrderProcessStyle.ContactButton phone href={`tel:${personToShow.phone}`}>
@@ -89,11 +80,6 @@ const OrderProcess = ({ isProvider = false }) => {
                                 <FontAwesomeIcon icon={faEnvelope} /> Email
                             </OrderProcessStyle.ContactButton>
                         </OrderProcessStyle.PersonInfo>
-                    </OrderProcessStyle.Card>
-
-                    <OrderProcessStyle.Card>
-                        <OrderProcessStyle.ServiceDetails>
-                        </OrderProcessStyle.ServiceDetails>
                     </OrderProcessStyle.Card>
                 </OrderProcessStyle.RightPanel>
             </OrderProcessStyle.Content>

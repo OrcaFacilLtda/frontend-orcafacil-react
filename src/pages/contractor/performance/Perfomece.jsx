@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase, faCheckCircle, faStar } from "@fortawesome/free-solid-svg-icons";
 import { Bar, Line } from "react-chartjs-2";
 import { getProviderStats, getProviderChartData } from "../../../services/api/providerService.js";
+import { useAuth } from "../../../hooks/useAuth.js";
 import {
     Chart as ChartJS,
     CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend
@@ -12,21 +13,31 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 const PerformanceDashboard = () => {
+    const { user } = useAuth();
     const [stats, setStats] = useState(null);
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const MOCKED_COMPANY_ID = 1;
-
     useEffect(() => {
+        // Garante que só executa se o utilizador for um prestador e estiver carregado
+        if (!user || user.userType !== 'PROVIDER') {
+            setLoading(false);
+            return;
+        }
+
         const fetchPerformanceData = async () => {
             try {
                 setLoading(true);
+                // O ID da empresa do prestador é o mesmo que o ID do utilizador
+                const companyId = user.id;
+
+                // Busca os dados dos cartões e dos gráficos em paralelo
                 const [statsData, charts] = await Promise.all([
-                    getProviderStats(MOCKED_COMPANY_ID),
-                    getProviderChartData(MOCKED_COMPANY_ID)
+                    getProviderStats(companyId),
+                    getProviderChartData(companyId)
                 ]);
+
                 setStats(statsData);
                 setChartData(charts);
                 setError('');
@@ -37,9 +48,11 @@ const PerformanceDashboard = () => {
                 setLoading(false);
             }
         };
-        fetchPerformanceData();
-    }, []);
 
+        fetchPerformanceData();
+    }, [user]);
+
+    // Configuração dos dados para o gráfico de barras
     const barData = {
         labels: chartData?.servicesByMonthLabels || [],
         datasets: [{
@@ -49,6 +62,7 @@ const PerformanceDashboard = () => {
         }]
     };
 
+    // Configuração dos dados para o gráfico de linhas
     const lineData = {
         labels: chartData?.earningsByMonthLabels || [],
         datasets: [{

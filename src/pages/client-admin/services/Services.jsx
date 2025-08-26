@@ -1,36 +1,42 @@
-// src/pages/client-admin/services/Services.jsx
 import React, { useState, useEffect } from "react";
 import ServiceStyle from "./Services.Style.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { getServicesByProvider, getServicesByClient } from "../../../services/api/serviceService.js";
+import { useAuth } from "../../../hooks/useAuth.js"; // 1. Importar o useAuth
 
-const Services = ({ isProvider = true }) => {
+const Services = () => {
+    const { user } = useAuth(); // 2. Usar o hook para obter o utilizador logado
+    const isProvider = user?.userType === 'PROVIDER';
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // IDs mockados - em um app real, viriam do contexto de autenticação (useAuth)
-    const MOCKED_USER_ID = 1;
-    const MOCKED_COMPANY_ID = 1;
-
     useEffect(() => {
+        // 3. Garantir que o código só executa se o utilizador estiver carregado
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
         const fetchServices = async () => {
             try {
                 setLoading(true);
                 setError('');
                 let data;
                 if (isProvider) {
-                    data = await getServicesByProvider(MOCKED_COMPANY_ID);
+                    // 4. Usar o ID real do utilizador (que é o mesmo que o companyId para o prestador)
+                    data = await getServicesByProvider(user.id);
                 } else {
-                    data = await getServicesByClient(MOCKED_USER_ID);
+                    // 4. Usar o ID real do cliente
+                    data = await getServicesByClient(user.id);
                 }
 
-
+                // Filtra para mostrar apenas serviços que estão "em andamento"
                 const inProgressServices = data.filter(service =>
-                    ![ 'REQUEST_SENT', 'REJECTED', 'COMPLETED' ].includes(service.serviceStatus)
+                    !['REQUEST_SENT', 'REJECTED', 'COMPLETED'].includes(service.serviceStatus)
                 );
 
                 setServices(inProgressServices);
@@ -44,7 +50,7 @@ const Services = ({ isProvider = true }) => {
         };
 
         fetchServices();
-    }, [isProvider]);
+    }, [user, isProvider]); // A dependência agora é o objeto 'user'
 
 
     const handleViewService = (id) => {
@@ -52,7 +58,7 @@ const Services = ({ isProvider = true }) => {
         navigate(`${basePath}/manage-services/${id}`);
     };
 
-    if (loading) return <ServiceStyle.Container><h2>Carregando serviços...</h2></ServiceStyle.Container>;
+    if (loading) return <ServiceStyle.Container><h2>A carregar serviços...</h2></ServiceStyle.Container>;
     if (error) return <ServiceStyle.Container><h2 style={{color: 'red'}}>{error}</h2></ServiceStyle.Container>;
 
 
@@ -60,7 +66,7 @@ const Services = ({ isProvider = true }) => {
         <ServiceStyle.Container>
             <ServiceStyle.Header>
                 <h2>Gerenciar Serviços</h2>
-                <p>Acompanhe suas solicitações e orçamentos em andamento</p>
+                <p>Acompanhe as suas solicitações e orçamentos em andamento</p>
             </ServiceStyle.Header>
 
             <ServiceStyle.FilterArea>
@@ -83,7 +89,6 @@ const Services = ({ isProvider = true }) => {
                 services.map((service, index) => (
                     <ServiceStyle.Card key={index}>
                         <ServiceStyle.TitleRow>
-                            {/* Mostra uma prévia da descrição como título */}
                             <h3>{service.description.substring(0, 50)}...</h3>
                             <ServiceStyle.Status status={service.serviceStatus}>
                                 {service.serviceStatus.replace('_', ' ')}

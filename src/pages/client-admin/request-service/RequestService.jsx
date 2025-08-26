@@ -1,4 +1,3 @@
-// src/pages/client-admin/request-service/RequestService.jsx
 import React, { useState, useEffect } from "react";
 import RequestServiceStyle from "./RequestService.Style.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,17 +5,25 @@ import { faComments, faSearch, faFileAlt, faThumbsUp, faHourglassHalf, faChartLi
 import { useNavigate } from "react-router-dom";
 import ServiceRequestModal from "../../../components/ui/modals/service-request-modal/ServiceRequestModal.jsx";
 import { getActiveProviders, getProviderStats } from "../../../services/api/providerService.js";
+import { useAuth } from "../../../hooks/useAuth.js";
 
-const RequestService = ({ isClient = false }) => {
+const RequestService = () => {
+    const { user } = useAuth();
+    const isClient = user?.userType === 'CLIENT';
     const navigate = useNavigate();
     const [listData, setListData] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    const MOCKED_PROVIDER_COMPANY_ID = 1;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProviderId, setSelectedProviderId] = useState(null);
 
     useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 setLoading(true);
@@ -25,7 +32,7 @@ const RequestService = ({ isClient = false }) => {
                     const providers = await getActiveProviders();
                     setListData(providers);
                 } else {
-                    const providerStats = await getProviderStats(MOCKED_PROVIDER_COMPANY_ID);
+                    const providerStats = await getProviderStats(user.id);
                     setStats(providerStats);
                     setListData(providerStats.newRequests || []);
                 }
@@ -37,7 +44,12 @@ const RequestService = ({ isClient = false }) => {
             }
         };
         fetchData();
-    }, [isClient]);
+    }, [user, isClient]);
+
+    const handleOpenModal = (providerId) => {
+        setSelectedProviderId(providerId);
+        setIsModalOpen(true);
+    };
 
     const handleViewService = (id) => navigate(`/provider/services/${id}`);
 
@@ -52,50 +64,65 @@ const RequestService = ({ isClient = false }) => {
     if (error) return <RequestServiceStyle.Container><p style={{color: 'red'}}>{error}</p></RequestServiceStyle.Container>;
 
     return (
-        <RequestServiceStyle.Container>
-            <RequestServiceStyle.Header>
-                <h2>{isClient ? "Prestadores" : "Serviços"}</h2>
-                <p>{isClient ? "Encontre o profissional ideal para o seu serviço" : "Gerencie as suas solicitações de orçamento"}</p>
-            </RequestServiceStyle.Header>
+        <>
+            <RequestServiceStyle.Container>
+                <RequestServiceStyle.Header>
+                    <h2>{isClient ? "Prestadores" : "Serviços"}</h2>
+                    <p>{isClient ? "Encontre o profissional ideal para o seu serviço" : "Gerencie as suas solicitações de orçamento"}</p>
+                </RequestServiceStyle.Header>
 
-            {!isClient && (
-                <RequestServiceStyle.SummaryGrid>
-                    {summaryData.map((item, i) => (
-                        <RequestServiceStyle.SummaryItem key={i}>
-                            <RequestServiceStyle.TextContainer>
-                                <RequestServiceStyle.SummaryTitle>{item.title}</RequestServiceStyle.SummaryTitle>
-                                <RequestServiceStyle.SummaryValue>{item.value}</RequestServiceStyle.SummaryValue>
-                            </RequestServiceStyle.TextContainer>
-                            <RequestServiceStyle.SummaryIcon color={item.color}>{item.icon}</RequestServiceStyle.SummaryIcon>
-                        </RequestServiceStyle.SummaryItem>
-                    ))}
-                </RequestServiceStyle.SummaryGrid>
-            )}
+                {!isClient && (
+                    <RequestServiceStyle.SummaryGrid>
+                        {summaryData.map((item, i) => (
+                            <RequestServiceStyle.SummaryItem key={i}>
+                                <RequestServiceStyle.TextContainer>
+                                    <RequestServiceStyle.SummaryTitle>{item.title}</RequestServiceStyle.SummaryTitle>
+                                    <RequestServiceStyle.SummaryValue>{item.value}</RequestServiceStyle.SummaryValue>
+                                </RequestServiceStyle.TextContainer>
+                                <RequestServiceStyle.SummaryIcon color={item.color}>{item.icon}</RequestServiceStyle.SummaryIcon>
+                            </RequestServiceStyle.SummaryItem>
+                        ))}
+                    </RequestServiceStyle.SummaryGrid>
+                )}
 
-            <RequestServiceStyle.RecentArea>
-                <RequestServiceStyle.RecentTitle>
-                    {isClient ? "Profissionais disponíveis" : "Solicitações Recentes"}
-                </RequestServiceStyle.RecentTitle>
+                <RequestServiceStyle.RecentArea>
+                    <RequestServiceStyle.RecentTitle>
+                        {isClient ? "Profissionais disponíveis" : "Solicitações Recentes"}
+                    </RequestServiceStyle.RecentTitle>
 
-                <RequestServiceStyle.ServiceList>
-                    {listData.map((item, i) => (
-                        <RequestServiceStyle.ServiceItem key={i}>
-                            <RequestServiceStyle.Avatar src={`https://i.pravatar.cc/48?img=${i+1}`} />
-                            <RequestServiceStyle.ServiceInfo>
-                                <RequestServiceStyle.ClientName>{item.user.name}</RequestServiceStyle.ClientName>
-                                <RequestServiceStyle.ServiceName>{isClient ? item.category.name : item.description}</RequestServiceStyle.ServiceName>
-                                {!isClient && <RequestServiceStyle.ServiceTime>{new Date(item.requestDate).toLocaleDateString()}</RequestServiceStyle.ServiceTime>}
-                            </RequestServiceStyle.ServiceInfo>
-                            {!isClient && (
-                                <RequestServiceStyle.ViewButton onClick={() => handleViewService(item.id)}>
-                                    <FontAwesomeIcon icon={faComments} /> Ver serviço
-                                </RequestServiceStyle.ViewButton>
-                            )}
-                        </RequestServiceStyle.ServiceItem>
-                    ))}
-                </RequestServiceStyle.ServiceList>
-            </RequestServiceStyle.RecentArea>
-        </RequestServiceStyle.Container>
+                    <RequestServiceStyle.ServiceList>
+                        {listData.map((item, i) => (
+                            <RequestServiceStyle.ServiceItem key={i}>
+                                <RequestServiceStyle.Avatar src={`https://i.pravatar.cc/48?img=${i+1}`} />
+                                <RequestServiceStyle.ServiceInfo>
+                                    <RequestServiceStyle.ClientName>{item.user.name}</RequestServiceStyle.ClientName>
+                                    <RequestServiceStyle.ServiceName>{isClient ? item.category.name : item.description}</RequestServiceStyle.ServiceName>
+                                    {!isClient && <RequestServiceStyle.ServiceTime>{new Date(item.requestDate).toLocaleDateString()}</RequestServiceStyle.ServiceTime>}
+                                </RequestServiceStyle.ServiceInfo>
+
+                                {isClient && (
+                                    <RequestServiceStyle.HireButton onClick={() => handleOpenModal(item.company.id)}>
+                                        Contratar
+                                    </RequestServiceStyle.HireButton>
+                                )}
+
+                                {!isClient && (
+                                    <RequestServiceStyle.ViewButton onClick={() => handleViewService(item.id)}>
+                                        <FontAwesomeIcon icon={faComments} /> Ver serviço
+                                    </RequestServiceStyle.ViewButton>
+                                )}
+                            </RequestServiceStyle.ServiceItem>
+                        ))}
+                    </RequestServiceStyle.ServiceList>
+                </RequestServiceStyle.RecentArea>
+            </RequestServiceStyle.Container>
+
+            <ServiceRequestModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                providerId={selectedProviderId}
+            />
+        </>
     );
 };
 
