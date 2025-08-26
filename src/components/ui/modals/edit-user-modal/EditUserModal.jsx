@@ -25,10 +25,7 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
         const { value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [model]: {
-                ...prev[model],
-                [field]: value
-            }
+            [model]: { ...prev[model], [field]: value }
         }));
     };
 
@@ -36,16 +33,9 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
         const { value } = e.target;
         setFormData(prev => ({
             ...prev,
-            user: {
-                ...prev.user,
-                address: {
-                    ...prev.user.address,
-                    [field]: value
-                }
-            }
+            user: { ...prev.user, address: { ...prev.user.address, [field]: value } }
         }));
     };
-
 
     const handleSave = (e) => {
         e.preventDefault();
@@ -66,44 +56,33 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
 
                 <EditUserModalStyle.Body>
                     <EditUserModalStyle.FormGrid>
-                        {/* Coluna Esquerda */}
                         <div>
                             <label>Nome:</label>
                             <input type="text" value={formData.user?.name || ''} onChange={(e) => handleChange(e, 'user', 'name')} />
-
                             <label>Email:</label>
                             <input type="email" value={formData.user?.email || ''} onChange={(e) => handleChange(e, 'user', 'email')} />
-
                             <label>Telefone:</label>
                             <input type="tel" value={formData.user?.phone || ''} onChange={(e) => handleChange(e, 'user', 'phone')} />
-
                             {userType === "provider" && (
                                 <>
                                     <label>Razão Social:</label>
                                     <input type="text" value={formData.company?.legalName || ''} onChange={(e) => handleChange(e, 'company', 'legalName')} />
-
                                     <label>CNPJ:</label>
                                     <input type="text" value={formData.company?.cnpj || ''} disabled />
                                 </>
                             )}
                         </div>
-
-                        {/* Coluna Direita */}
                         <div>
                             <label>Rua:</label>
                             <input type="text" value={formData.user?.address?.street || ''} onChange={(e) => handleAddressChange(e, 'street')} />
-
                             <label>Bairro:</label>
                             <input type="text" value={formData.user?.address?.neighborhood || ''} onChange={(e) => handleAddressChange(e, 'neighborhood')} />
-
                             <label>Cidade:</label>
                             <input type="text" value={formData.user?.address?.city || ''} onChange={(e) => handleAddressChange(e, 'city')} />
-
                             <label>CEP:</label>
                             <input type="text" value={formData.user?.address?.zipCode || ''} onChange={(e) => handleAddressChange(e, 'zipCode')} />
                         </div>
                     </EditUserModalStyle.FormGrid>
-
                     <EditUserModalStyle.Buttons>
                         <button type="button" className="btn-delete" onClick={onDelete}>Apagar</button>
                         <button type="submit" className="btn-save">Guardar Alterações</button>

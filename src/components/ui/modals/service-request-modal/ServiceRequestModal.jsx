@@ -5,44 +5,31 @@ import GeneralInput from "../../general-input/GeneralInput.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { createServiceRequest } from "../../../services/api/serviceService";
-import { getAllCategories } from "../../../services/api/categoryService";
-// import { useAuth } from "../../../hooks/useAuth"; // Idealmente, usar o user do contexto
+// Idealmente, usar o user do contexto de autenticação
+// import { useAuth } from "../../../hooks/useAuth";
 
 const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
     // const { user } = useAuth(); // Usar o utilizador logado
     const MOCKED_CLIENT_ID = 2; // Substituir pelo user.id do contexto
 
-    const [categories, setCategories] = useState([]);
-    const [formData, setFormData] = useState({
-        description: '',
-        company: { id: providerId },
-        user: { id: MOCKED_CLIENT_ID }
-    });
-
-    useEffect(() => {
-        if(isOpen) {
-            const fetchCategories = async () => {
-                const cats = await getAllCategories();
-                setCategories(cats || []);
-            };
-            fetchCategories();
-        }
-    }, [isOpen]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const [description, setDescription] = useState('');
 
     const handleSubmit = async () => {
-        if (!formData.description.trim() || !formData.company.id) {
+        if (!description.trim()) {
             Swal.fire('Atenção', 'A descrição do serviço é obrigatória.', 'warning');
             return;
         }
 
+        const serviceData = {
+            description: description,
+            company: { id: providerId },
+            user: { id: MOCKED_CLIENT_ID }
+        };
+
         try {
-            await createServiceRequest(formData);
+            await createServiceRequest(serviceData);
             Swal.fire('Sucesso!', 'A sua solicitação de serviço foi enviada.', 'success');
+            setDescription(''); // Limpa o campo
             onClose();
         } catch (error) {
             Swal.fire('Erro!', 'Não foi possível enviar a sua solicitação.', 'error');
@@ -68,10 +55,9 @@ const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
                         as="textarea"
                         rows="4"
                         name="description"
-                        value={formData.description}
-                        onChange={handleChange}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                     />
-
                     <ModalStyle.SubmitButton onClick={handleSubmit}>
                         Enviar Pedido
                     </ModalStyle.SubmitButton>
