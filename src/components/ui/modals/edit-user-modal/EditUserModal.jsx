@@ -1,87 +1,112 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import EditUserModalStyle from "./EditUserModal.Style.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) => {
+    const [formData, setFormData] = useState({});
+
+    useEffect(() => {
+        if (user) {
+            const userData = userType === 'provider' ? user.user : user;
+            const companyData = userType === 'provider' ? user.company : {};
+            const categoryData = userType === 'provider' ? user.category : {};
+
+            setFormData({
+                user: { ...userData },
+                company: { ...companyData },
+                category: { ...categoryData },
+                userType: userType
+            });
+        }
+    }, [user, userType]);
+
+    const handleChange = (e, model, field) => {
+        const { value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [model]: {
+                ...prev[model],
+                [field]: value
+            }
+        }));
+    };
+
+    const handleAddressChange = (e, field) => {
+        const { value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            user: {
+                ...prev.user,
+                address: {
+                    ...prev.user.address,
+                    [field]: value
+                }
+            }
+        }));
+    };
+
+
+    const handleSave = (e) => {
+        e.preventDefault();
+        onSave(formData);
+    };
+
     if (!isOpen) return null;
 
     return (
         <EditUserModalStyle.Overlay>
-            <EditUserModalStyle.ModalContainer>
+            <EditUserModalStyle.ModalContainer as="form" onSubmit={handleSave}>
                 <EditUserModalStyle.Header>
-                    <h3>Editar usuário:</h3>
-                    <button onClick={onClose}>
-                        <FontAwesomeIcon icon={faTimes} size={20} />
+                    <h3>Editar utilizador: {formData.user?.name}</h3>
+                    <button type="button" onClick={onClose}>
+                        <FontAwesomeIcon icon={faTimes} size="lg" />
                     </button>
                 </EditUserModalStyle.Header>
 
                 <EditUserModalStyle.Body>
                     <EditUserModalStyle.FormGrid>
-                        {/* Esquerda */}
+                        {/* Coluna Esquerda */}
                         <div>
-                            <label>Nome Usuário:</label>
-                            <input type="text" placeholder="Nome" defaultValue={user?.name || ""} />
+                            <label>Nome:</label>
+                            <input type="text" value={formData.user?.name || ''} onChange={(e) => handleChange(e, 'user', 'name')} />
 
                             <label>Email:</label>
-                            <input type="email" placeholder="Descrição" defaultValue={user?.email || ""} />
-
-                            <label>Senha:</label>
-                            <input type="password" placeholder="Senha" defaultValue={user?.password || ""} />
+                            <input type="email" value={formData.user?.email || ''} onChange={(e) => handleChange(e, 'user', 'email')} />
 
                             <label>Telefone:</label>
-                            <input type="tel" defaultValue={user?.phone || ""} />
+                            <input type="tel" value={formData.user?.phone || ''} onChange={(e) => handleChange(e, 'user', 'phone')} />
 
-                            <label>CPF:</label>
-                            <input type="text" defaultValue={user?.cpf || ""} />
-
-                            {userType === "prestador" && (
+                            {userType === "provider" && (
                                 <>
+                                    <label>Razão Social:</label>
+                                    <input type="text" value={formData.company?.legalName || ''} onChange={(e) => handleChange(e, 'company', 'legalName')} />
+
                                     <label>CNPJ:</label>
-                                    <input type="text" defaultValue={user?.cnpj || ""} />
-
-                                    <label>Função:</label>
-                                    <select defaultValue={user?.role || ""}>
-                                        <option value="">Selecione uma função</option>
-                                        <option value="eletricista">Eletricista</option>
-                                        <option value="encanador">Encanador</option>
-                                        <option value="outro">Outro</option>
-                                    </select>
-
-                                    <label>Breve bibliografia:</label>
-                                    <textarea defaultValue={user?.bio || ""} rows={4} />
+                                    <input type="text" value={formData.company?.cnpj || ''} disabled />
                                 </>
                             )}
                         </div>
 
-                        {/* Direita */}
+                        {/* Coluna Direita */}
                         <div>
-                            <label>UF:</label>
-                            <select defaultValue={user?.uf || ""}>
-                                <option value="">Selecione a UF</option>
-                                <option value="SP">SP</option>
-                                <option value="RJ">RJ</option>
-                                <option value="MG">MG</option>
-                                {/* outros estados */}
-                            </select>
-
-                            <label>Cidade:</label>
-                            <input type="text" defaultValue={user?.city || ""} />
-
                             <label>Rua:</label>
-                            <input type="text" defaultValue={user?.street || ""} />
+                            <input type="text" value={formData.user?.address?.street || ''} onChange={(e) => handleAddressChange(e, 'street')} />
 
                             <label>Bairro:</label>
-                            <input type="text" defaultValue={user?.neighborhood || ""} />
+                            <input type="text" value={formData.user?.address?.neighborhood || ''} onChange={(e) => handleAddressChange(e, 'neighborhood')} />
+
+                            <label>Cidade:</label>
+                            <input type="text" value={formData.user?.address?.city || ''} onChange={(e) => handleAddressChange(e, 'city')} />
 
                             <label>CEP:</label>
-                            <input type="text" defaultValue={user?.cep || ""} />
+                            <input type="text" value={formData.user?.address?.zipCode || ''} onChange={(e) => handleAddressChange(e, 'zipCode')} />
                         </div>
                     </EditUserModalStyle.FormGrid>
 
                     <EditUserModalStyle.Buttons>
-                        <button className="btn-delete" onClick={onDelete}>Apagar</button>
-                        <button className="btn-save" onClick={onSave}>Aceitar</button>
+                        <button type="button" className="btn-delete" onClick={onDelete}>Apagar</button>
+                        <button type="submit" className="btn-save">Guardar Alterações</button>
                     </EditUserModalStyle.Buttons>
                 </EditUserModalStyle.Body>
             </EditUserModalStyle.ModalContainer>

@@ -20,3 +20,17 @@ export const getServicesByClient = async (userId) => {
         throw error;
     }
 };
+
+/**
+ * Cria uma nova solicitação de serviço.
+ * @param {object} serviceData - Dados da solicitação.
+ */
+export const createServiceRequest = async (serviceData) => {
+    try {
+        const response = await api.post('/api/services', serviceData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao criar solicitação de serviço:", error);
+        throw error;
+    }
+};

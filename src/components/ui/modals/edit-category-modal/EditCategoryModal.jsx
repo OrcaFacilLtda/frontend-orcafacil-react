@@ -4,21 +4,17 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import CategoryStyle from './EditCategoryModal.Style.jsx';
 
 const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
-    const [formData, setFormData] = useState({
-        id: '',
-        name: '',
-        description: '',
-        status: '',
-    });
+    // O modal agora gere o seu próprio estado do formulário
+    const [formData, setFormData] = useState({ id: '', name: '', description: '' });
 
-    // Preenche o form quando a categoria muda
+    // Quando a propriedade `category` muda (ou seja, quando o modal abre),
+    // atualizamos o estado interno do formulário com os dados da categoria
     useEffect(() => {
         if (category) {
             setFormData({
                 id: category.id || '',
                 name: category.name || '',
                 description: category.description || '',
-                status: category.status || '',
             });
         }
     }, [category]);
@@ -28,20 +24,19 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = () => {
-        if (formData.name && formData.status) {
-            onSubmit(formData);
-        }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(formData); // Envia os dados atualizados para a página pai
     };
 
     if (!isOpen) return null;
 
     return (
         <CategoryStyle.ModalOverlay>
-            <CategoryStyle.ModalContainer>
+            <CategoryStyle.ModalContainer as="form" onSubmit={handleSubmit}>
                 <CategoryStyle.ModalHeader>
                     <h3>Editar categoria:</h3>
-                    <button onClick={onClose}>
+                    <button type="button" onClick={onClose}>
                         <FontAwesomeIcon icon={faXmark} size="lg" />
                     </button>
                 </CategoryStyle.ModalHeader>
@@ -56,6 +51,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="Nome"
+                                required
                             />
                         </CategoryStyle.FormControl>
                     </CategoryStyle.FormRow>
@@ -72,24 +68,9 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
                         </CategoryStyle.FormControl>
                     </CategoryStyle.FormRow>
 
-                    <CategoryStyle.FormRow>
-                        <CategoryStyle.FormControl fullWidth>
-                            <CategoryStyle.Label>Status</CategoryStyle.Label>
-                            <CategoryStyle.Select
-                                name="status"
-                                value={formData.status}
-                                onChange={handleChange}
-                            >
-                                <option value="">Selecione</option>
-                                <option value="ativo">Ativo</option>
-                                <option value="inativo">Inativo</option>
-                            </CategoryStyle.Select>
-                        </CategoryStyle.FormControl>
-                    </CategoryStyle.FormRow>
-
                     <CategoryStyle.ButtonWrapper>
-                        <CategoryStyle.SubmitButton onClick={handleSubmit}>
-                            Editar
+                        <CategoryStyle.SubmitButton type="submit">
+                            Guardar Alterações
                         </CategoryStyle.SubmitButton>
                     </CategoryStyle.ButtonWrapper>
                 </CategoryStyle.ModalBody>
