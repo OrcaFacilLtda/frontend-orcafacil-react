@@ -1,46 +1,74 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../services/api/api.js";
+import { jwtDecode } from "jwt-decode"; // 1. IMPORTAR A BIBLIOTECA
+import { getProfileByEmail } from "../services/api/profileService.js"; // 2. IMPORTAR A NOVA FUNÇÃO
 
-// 1. Export the AuthContext so other files (like our hook) can import it
 export const AuthContext = createContext(null);
 
-// 2. AuthProvider is the only default export
+// Função para ler o cookie
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchUser = async () => {
-        try {
-            const response = await api.get("/api/users/me");
-            setUser(response.data);
-        } catch (error) {
-            // FIX: Use the 'error' variable to provide more context in the console
-            console.error("Failed to fetch user session:", error.message);
-            setUser(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // 3. EFEITO PARA VERIFICAR A SESSÃO NA INICIALIZAÇÃO
     useEffect(() => {
-        fetchUser();
+        const initializeAuth = async () => {
+            const token = getCookie("auth-token");
+            if (token) {
+                try {
+                    const decodedToken = jwtDecode(token);
+                    // O 'sub' (subject) do nosso token é o email
+                    const userEmail = decodedToken.sub;
+                    if (userEmail) {
+                        const userData = await getProfileByEmail(userEmail);
+                        setUser(userData);
+                    }
+                } catch (error) {
+                    console.error("Falha ao validar token:", error);
+                    setUser(null);
+                }
+            }
+            setLoading(false);
+        };
+
+        initializeAuth();
     }, []);
 
     const login = async (email, password) => {
-        await api.post("/login", { email, password });
-        await fetchUser();
+        try {
+            await api.post("/login", { email, password });
+            // Após o login, o cookie é definido pelo backend.
+            // Agora, buscamos os dados do utilizador com base no novo token.
+            const token = getCookie("auth-token");
+            if (token) {
+                const decodedToken = jwtDecode(token);
+                const userData = await getProfileByEmail(decodedToken.sub);
+                setUser(userData);
+            }
+        } catch (error) {
+            console.error("Falha no login:", error);
+            setUser(null);
+            throw error; // Propaga o erro para a página de login poder exibi-lo
+        }
     };
 
     const logout = async () => {
         try {
             await api.post("/logout");
         } finally {
+            // Limpa o estado do utilizador independentemente do resultado
             setUser(null);
         }
     };
 
     if (loading) {
-        return <div>Carregando...</div>;
+        return <div>A carregar sessão...</div>;
     }
 
     return (

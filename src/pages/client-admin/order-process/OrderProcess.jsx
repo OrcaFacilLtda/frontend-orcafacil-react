@@ -8,18 +8,17 @@ import { getServiceDetails } from "../../../services/api/oderService.js";
 import { faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-// Mapeamento de Status do Backend para Etapa numérica do Frontend
 const statusToStepMap = {
     'REQUEST_SENT': 1,
     'NEGOTIATING_VISIT': 2,
     'VISIT_CONFIRMED': 3,
-    'NEGOTIATING_DATES': 3, // Mesma etapa visual de 'Enviar Prazo'
+    'NEGOTIATING_DATES': 3,
     'DATES_CONFIRMED': 4,
-    'BUDGET_IN_NEGOTIATION': 4, // Mesma etapa visual de 'Orçamento'
+    'BUDGET_IN_NEGOTIATION': 4,
     'BUDGET_REVISION_REQUESTED': 4,
     'IN_PROGRESS': 5,
     'COMPLETED': 6,
-    'REJECTED': -1, // Estado de falha
+    'REJECTED': -1,
 };
 
 
@@ -29,7 +28,6 @@ const OrderProcess = ({ isProvider = false }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // IDs mockados - em um app real, viriam do contexto de autenticação (useAuth)
     const MOCKED_LOGGED_IN_USER_ID = 1;
 
     const fetchService = async () => {
@@ -75,14 +73,13 @@ const OrderProcess = ({ isProvider = false }) => {
                         currentStep={currentStep}
                         isProvider={isProvider}
                         userId={MOCKED_LOGGED_IN_USER_ID}
-                        onUpdate={fetchService} // Passa a função para recarregar os dados
+                        onUpdate={fetchService}
                     />
                 </OrderProcessStyle.LeftPanel>
 
                 <OrderProcessStyle.RightPanel>
                     <OrderProcessStyle.Card>
                         <OrderProcessStyle.PersonInfo>
-                            <OrderProcessStyle.PersonImage src={`https://i.pravatar.cc/80?img=${personToShow.id}`} alt={personToShow.name} />
                             <OrderProcessStyle.PersonName>{isProvider ? personToShow.name : personToShow.legalName}</OrderProcessStyle.PersonName>
                             <OrderProcessStyle.PersonAddress>{personToShow.address?.city}, {personToShow.address?.state}</OrderProcessStyle.PersonAddress>
                             <OrderProcessStyle.ContactButton phone href={`tel:${personToShow.phone}`}>
@@ -96,7 +93,6 @@ const OrderProcess = ({ isProvider = false }) => {
 
                     <OrderProcessStyle.Card>
                         <OrderProcessStyle.ServiceDetails>
-                            {/* ... outros detalhes ... */}
                         </OrderProcessStyle.ServiceDetails>
                     </OrderProcessStyle.Card>
                 </OrderProcessStyle.RightPanel>

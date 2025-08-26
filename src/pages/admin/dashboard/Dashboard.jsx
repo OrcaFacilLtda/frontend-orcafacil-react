@@ -21,7 +21,6 @@ const Dashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                // Busca os dados dos cartões e dos gráficos em paralelo para mais eficiência
                 const [statsData, charts] = await Promise.all([
                     getAdminDashboardStats(),
                     getAdminChartData()
@@ -38,7 +37,6 @@ const Dashboard = () => {
         fetchDashboardData();
     }, []);
 
-    // Configuração dos dados do gráfico de linha com os dados da API
     const lineData = {
         labels: chartData?.userRegistrationLabels || [],
         datasets: [{
@@ -51,7 +49,6 @@ const Dashboard = () => {
         }],
     };
 
-    // Configuração dos dados do gráfico de barras com os dados da API
     const barData = {
         labels: chartData?.servicesByCategoryLabels || [],
         datasets: [{

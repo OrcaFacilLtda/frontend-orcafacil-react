@@ -1,4 +1,3 @@
-// src/services/api/profileService.js
 import api from './api';
 
 // Busca os dados de um usuário (serve para cliente e para a parte 'user' do prestador)
@@ -45,3 +44,17 @@ export const updateProviderProfile = async (providerId, providerData) => {
         throw error;
     }
 };
+
+/**
+ * Busca os dados de um utilizador pelo seu email.
+ * @param {string} email - O email do utilizador.
+ */
+export const getProfileByEmail = async (email) => {
+    try {
+        const response = await api.get(`/api/users/email/${email}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao buscar perfil por email:", error);
+        throw error;
+    }
+}

@@ -4,11 +4,8 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import CategoryStyle from './EditCategoryModal.Style.jsx';
 
 const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
-    // O modal agora gere o seu próprio estado do formulário
     const [formData, setFormData] = useState({ id: '', name: '', description: '' });
 
-    // Quando a propriedade `category` muda (ou seja, quando o modal abre),
-    // atualizamos o estado interno do formulário com os dados da categoria
     useEffect(() => {
         if (category) {
             setFormData({
@@ -26,7 +23,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData); // Envia os dados atualizados para a página pai
+        onSubmit(formData);
     };
 
     if (!isOpen) return null;

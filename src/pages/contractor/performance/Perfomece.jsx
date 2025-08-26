@@ -17,7 +17,7 @@ const PerformanceDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const MOCKED_COMPANY_ID = 1; // Num app real, o ID viria de um contexto de autenticação
+    const MOCKED_COMPANY_ID = 1;
 
     useEffect(() => {
         const fetchPerformanceData = async () => {

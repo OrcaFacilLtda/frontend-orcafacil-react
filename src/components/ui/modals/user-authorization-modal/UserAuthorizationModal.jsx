@@ -14,7 +14,6 @@ const UserAuthorizationModal = ({ isOpen, onClose, onSubmit, user = {} }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-        // Passa o ID do usuário e o novo status para a função onSubmit
         onSubmit(user.id, status);
     };
 

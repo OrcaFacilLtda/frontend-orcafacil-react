@@ -11,7 +11,6 @@ import {
 } from '../../../services/api/profileService';
 
 const Profile = ({ isClient }) => {
-    // IDs mockados. Em um app real, viriam de um contexto de autenticação (useAuth)
     const MOCKED_USER_ID = 1;
 
     const [formData, setFormData] = useState({});
@@ -26,11 +25,9 @@ const Profile = ({ isClient }) => {
                 if (isClient) {
                     profileData = await getUserProfile(MOCKED_USER_ID);
                 } else {
-                    // Para prestador, buscamos o objeto completo que inclui user, company e category
                     profileData = await getProviderProfile(MOCKED_USER_ID);
                 }
 
-                // Desestruturamos os dados para preencher o formulário
                 const { user, company, category } = profileData || {};
                 const userData = isClient ? profileData : user;
 
@@ -40,10 +37,9 @@ const Profile = ({ isClient }) => {
                     email: userData?.email || '',
                     phone: userData?.phone || '',
                     cpf: userData?.cpf || '',
-                    currentPassword: '', // Senha atual sempre vazia por segurança
-                    newPassword: '',     // Nova senha sempre vazia
+                    currentPassword: '',
+                    newPassword: '',
 
-                    // Address data (fica dentro do objeto 'address' do usuário)
                     street: userData?.address?.street || '',
                     city: userData?.address?.city || '',
                     neighborhood: userData?.address?.neighborhood || '',
@@ -97,7 +93,7 @@ const Profile = ({ isClient }) => {
                 const providerUpdateRequest = {
                     userUpdateRequest,
                     companyUpdateRequest: {
-                        id: MOCKED_USER_ID, // O ID da company é o mesmo do user no seu modelo
+                        id: MOCKED_USER_ID,
                         legalName: formData.legalName,
                         cnpj: formData.cnpj,
                         address: addressRequest,

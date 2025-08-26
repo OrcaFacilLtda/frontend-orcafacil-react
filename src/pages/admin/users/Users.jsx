@@ -41,7 +41,7 @@ export default function Users() {
     }, []);
 
     const handleOpenAuthorize = (user) => {
-        setSelectedUser({ ...user, role: user.userType }); // Adiciona 'role' para o modal
+        setSelectedUser({ ...user, role: user.userType });
         setIsAuthorizationModalOpen(true);
     };
 
@@ -49,7 +49,6 @@ export default function Users() {
         try {
             let fullProfile;
             if (user.userType === 'PROVIDER') {
-                // Busca o perfil completo do prestador para ter todos os dados
                 fullProfile = await getProviderProfile(user.id);
             } else {
                 fullProfile = user;
@@ -73,7 +72,7 @@ export default function Users() {
     };
 
     const handleDelete = (user) => {
-        const userToDelete = user.user || user; // Acesso correto ao ID, seja cliente ou prestador
+        const userToDelete = user.user || user;
         Swal.fire({
             title: 'Tem a certeza?',
             text: `Deseja apagar permanentemente o utilizador ${userToDelete.name}?`,
@@ -129,7 +128,6 @@ export default function Users() {
 
     return (
         <UsersStyle.Container>
-            {/* ... (código do header e dos cartões não muda) ... */}
             <UsersStyle.Header>
                 <h2>Utilizadores</h2>
                 <p>Gerencie os utilizadores do sistema</p>

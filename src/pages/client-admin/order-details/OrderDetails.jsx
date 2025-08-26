@@ -7,14 +7,13 @@ import OrderSteps from "../../../components/section/order-steps/OrderSteps.jsx";
 import { getServiceDetails, acceptServiceRequest, rejectServiceRequest } from "../../../services/api/oderService.js";
 
 const OrderDetails = ({ isProvider = true }) => {
-    const { id } = useParams(); // Pega o ID da URL
+    const { id } = useParams();
     const navigate = useNavigate();
 
     const [service, setService] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // ID mockado do prestador logado. Em um app real, viria do useAuth().
     const MOCKED_PROVIDER_COMPANY_ID = 1;
 
     useEffect(() => {
@@ -49,9 +48,9 @@ const OrderDetails = ({ isProvider = true }) => {
             if (result.isConfirmed) {
                 try {
                     const updatedService = await acceptServiceRequest(id, MOCKED_PROVIDER_COMPANY_ID);
-                    setService(updatedService); // Atualiza o estado com o novo status
+                    setService(updatedService);
                     Swal.fire("Aceito!", "O serviço foi aceito com sucesso.", "success");
-                    navigate('/provider/manage-services'); // Redireciona para a tela de gerenciamento
+                    navigate('/provider/manage-services');
                 } catch (err) {
                     Swal.fire("Erro!", "Não foi possível aceitar o serviço.", "error");
                 }

@@ -11,7 +11,7 @@ import { faUser, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
     const navigate = useNavigate();
-    const [userType, setUserType] = useState('PROVIDER'); // 'PROVIDER' ou 'CLIENT'
+    const [userType, setUserType] = useState('PROVIDER');
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState('');
 

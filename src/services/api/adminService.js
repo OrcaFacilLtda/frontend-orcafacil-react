@@ -18,7 +18,6 @@ export const getAllUsers = async () => {
  */
 export const getUsersByStatus = async (status) => {
     try {
-        // O enum no backend é em maiúsculas (PENDING, APPROVED, etc.)
         const response = await api.get(`/api/users/status/${status.toUpperCase()}`);
         return response.data.data;
     } catch (error) {

@@ -89,8 +89,8 @@ export default function Category() {
         try {
             await createCategory({ name, description });
             Swal.fire('Criada!', 'Nova categoria adicionada com sucesso.', 'success');
-            setNewCategory({ name: '', description: '' }); // Limpa o formulário
-            fetchCategories(); // Recarrega a lista
+            setNewCategory({ name: '', description: '' });
+            fetchCategories();
         } catch (error) {
             Swal.fire('Erro!', 'Não foi possível criar a categoria.', 'error');
         }

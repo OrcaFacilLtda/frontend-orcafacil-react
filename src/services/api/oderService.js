@@ -1,4 +1,3 @@
-// src/services/api/orderService.js
 import api from './api';
 
 /**
@@ -59,8 +58,8 @@ export const confirmVisitStep = async (serviceId, userId) => {
 
 /**
  * Confirma a etapa de datas da obra.
- * @param {number} serviceId - ID do serviço.
- * @param {number} userId - ID do usuário confirmando.
+ * @param {number} serviceId -
+ * @param {number} userId
  */
 export const confirmDatesStep = async (serviceId, userId) => {
     try {
@@ -74,8 +73,8 @@ export const confirmDatesStep = async (serviceId, userId) => {
 
 /**
  * Confirma a etapa de materiais/orçamento.
- * @param {number} serviceId - ID do serviço.
- * @param {number} userId - ID do usuário confirmando.
+ * @param {number} serviceId
+ * @param {number} userId
  */
 export const confirmMaterialsStep = async (serviceId, userId) => {
     try {

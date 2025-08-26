@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from 'sweetalert2';
 import ModalStyle from "./ServiceRequestModal.Style";
 import GeneralInput from "../../general-input/GeneralInput.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { createServiceRequest } from "../../../services/api/serviceService";
-// Idealmente, usar o user do contexto de autenticação
-// import { useAuth } from "../../../hooks/useAuth";
+import { createServiceRequest } from "../../../../services/api/serviceService.js";
+import { useAuth } from "../../../../hooks/useAuth.js"; // 1. IMPORTAR O useAuth
 
 const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
-    // const { user } = useAuth(); // Usar o utilizador logado
-    const MOCKED_CLIENT_ID = 2; // Substituir pelo user.id do contexto
-
+    const { user } = useAuth();
     const [description, setDescription] = useState('');
 
     const handleSubmit = async () => {
+        if (!user || !user.id) {
+            Swal.fire('Erro!', 'Você precisa de estar autenticado para solicitar um serviço.', 'error');
+            return;
+        }
+
         if (!description.trim()) {
             Swal.fire('Atenção', 'A descrição do serviço é obrigatória.', 'warning');
             return;
@@ -23,7 +25,7 @@ const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
         const serviceData = {
             description: description,
             company: { id: providerId },
-            user: { id: MOCKED_CLIENT_ID }
+            user: { id: user.id } // 4. SUBSTITUIR O MOCKED_CLIENT_ID PELO ID REAL
         };
 
         try {

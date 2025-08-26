@@ -31,7 +31,7 @@ const Login = () => {
 
         try {
             await login(email, password);
-            navigate('/'); // Redireciona para a raiz após o login bem-sucedido
+            navigate('/');
         } catch (err) {
             console.error("Erro no login:", err);
             const errorMessage = err.response?.status === 401
