@@ -4,16 +4,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import GeneralInput from "../../general-input/GeneralInput.jsx";
 
-const UserAuthorizationModal = ({ isOpen, onClose, onSubmit, user = {} }) => {
-    const [status, setStatus] = useState(user.status || '');
+const UserAuthorizationModal = ({ isOpen, onClose, onSubmit, user }) => {
+    const [status, setStatus] = useState(user?.status || 'PENDING');
 
     useEffect(() => {
-        setStatus(user.status || 'PENDING');
+        setStatus(user?.status || 'PENDING');
     }, [user]);
 
     if (!isOpen) return null;
 
     const handleSubmit = () => {
+        if (!user) return; // evita erro se user ainda não estiver definido
         onSubmit(user.id, status);
     };
 
@@ -28,9 +29,9 @@ const UserAuthorizationModal = ({ isOpen, onClose, onSubmit, user = {} }) => {
                 </ModalStyle.Header>
 
                 <ModalStyle.Body>
-                    <GeneralInput label="Nome:" defaultValue={user.name || ""} readOnly />
-                    <GeneralInput label="Email:" defaultValue={user.email || ""} readOnly />
-                    <GeneralInput label="Tipo:" defaultValue={user.role || ""} readOnly />
+                    <GeneralInput label="Nome:" defaultValue={user?.name || ""} readOnly />
+                    <GeneralInput label="Email:" defaultValue={user?.email || ""} readOnly />
+                    <GeneralInput label="Tipo:" defaultValue={user?.role || ""} readOnly />
 
                     <GeneralInput
                         label="Status:"

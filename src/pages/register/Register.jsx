@@ -46,12 +46,21 @@ const Register = () => {
         setError('');
 
         const userRequestPayload = {
-            name: formData.name, email: formData.email, password: formData.password,
-            cpf: formData.cpf, phone: formData.phone, birthDate: formData.birthDate,
-            userType: userType, status: 'PENDING',
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            cpf: formData.cpf,
+            phone: formData.phone,
+            birthDate: formData.birthDate,
+            userType: userType,
+            status: 'PENDING',
             address: {
-                zipCode: formData.zipCode, street: formData.street, number: formData.number,
-                neighborhood: formData.neighborhood, city: formData.city, state: formData.state,
+                zipCode: formData.zipCode,
+                street: formData.street,
+                number: formData.number,
+                neighborhood: formData.neighborhood,
+                city: formData.city,
+                state: formData.state,
                 complement: formData.complement,
             }
         };
@@ -126,6 +135,7 @@ const Register = () => {
 
                         <RegisterLoginInput label="NOME COMPLETO" name="name" value={formData.name} onChange={handleChange} required />
                         <RegisterLoginInput label="EMAIL" type="email" name="email" value={formData.email} onChange={handleChange} required />
+                        <RegisterLoginInput label="DATA DE NASCIMENTO" type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} required />
                         <RegisterLoginInput label="TELEFONE" name="phone" value={formData.phone} onChange={handleChange} required />
                         <RegisterLoginInput label="CPF" name="cpf" value={formData.cpf} onChange={handleChange} required />
                         <RegisterLoginInput label="CEP" name="zipCode" value={formData.zipCode} onChange={handleChange} required />
@@ -143,14 +153,77 @@ const Register = () => {
                         <RegisterStyle.UserIcon>
                             <FontAwesomeIcon icon={faUser} />
                         </RegisterStyle.UserIcon>
+
                         <RegisterLoginInput label="RUA" name="street" value={formData.street} onChange={handleChange} required />
                         <RegisterLoginInput label="BAIRRO" name="neighborhood" value={formData.neighborhood} onChange={handleChange} required />
                         <RegisterLoginInput label="NÚMERO" name="number" value={formData.number} onChange={handleChange} required />
-                        <RegisterLoginInput label="DATA DE NASCIMENTO" type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} required />
+                        <RegisterLoginInput label="CIDADE" name="city" value={formData.city} onChange={handleChange} required />
+
+                        <label htmlFor="state">ESTADO:</label>
+                        <select
+                            name="state"
+                            id="state"
+                            value={formData.state}
+                            onChange={handleChange}
+                            required
+                            style={{
+                                width: '105%',
+                                padding: '0.5rem',
+                                border: '1.5px solid #3b82f6',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                marginTop: '0.5rem',
+                                marginBottom: '0.5rem'
+                            }}
+                        >
+                            <option value="">Selecione um Estado</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+
                         <RegisterLoginInput label="SENHA" type="password" name="password" value={formData.password} onChange={handleChange} required />
 
                         {userType === 'PROVIDER' && (
-                            <select name="categoryId" value={formData.categoryId} onChange={handleChange} required style={{width: '105%', padding: '0.5rem', border: '1.5px solid #3b82f6', borderRadius: '8px', fontSize: '1rem', marginTop: '0.5rem',marginBottom:"0.5rem"}}>
+                            <select
+                                name="categoryId"
+                                value={formData.categoryId}
+                                onChange={handleChange}
+                                required
+                                style={{
+                                    width: '105%',
+                                    padding: '0.5rem',
+                                    border: '1.5px solid #3b82f6',
+                                    borderRadius: '8px',
+                                    fontSize: '1rem',
+                                    marginTop: '0.5rem',
+                                    marginBottom: "0.5rem"
+                                }}
+                            >
                                 <option value="">Selecione uma Categoria</option>
                                 {categories.map(cat => (
                                     <option key={cat.id} value={cat.id}>{cat.name}</option>

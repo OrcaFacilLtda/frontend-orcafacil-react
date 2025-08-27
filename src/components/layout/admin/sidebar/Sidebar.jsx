@@ -1,16 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import SidebarStyle from './Sidebar.Style.jsx';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTachometerAlt,
     faUsers,
     faCogs,
-    faShieldAlt,
     faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth-token');
+        navigate('/login');
+    };
+
     return (
         <SidebarStyle.SidebarContainer>
             <SidebarStyle.Logo>OrçaFácil Admin</SidebarStyle.Logo>
@@ -36,16 +42,9 @@ const Sidebar = () => {
                         Categorias
                     </SidebarStyle.NavLinkStyled>
                 </SidebarStyle.NavItem>
-
-                {/*<SidebarStyle.NavItem>*/}
-                {/*    <SidebarStyle.NavLinkStyled to="/admin/moderation">*/}
-                {/*        <FontAwesomeIcon icon={faShieldAlt}/>*/}
-                {/*        Moderação*/}
-                {/*    </SidebarStyle.NavLinkStyled>*/}
-                {/*</SidebarStyle.NavItem>*/}
             </SidebarStyle.NavList>
 
-            <SidebarStyle.LogoutButton onClick={() => console.log('Sair clicado')}>
+            <SidebarStyle.LogoutButton onClick={handleLogout}>
                 <FontAwesomeIcon icon={faSignOutAlt} />
                 Sair
             </SidebarStyle.LogoutButton>

@@ -8,9 +8,12 @@ import { getActiveProviders, getProviderStats } from "../../../services/api/prov
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const RequestService = () => {
-    const { user } = useAuth();
-    const isClient = user?.userType === 'CLIENT';
+    const { user } = useAuth(); // Usar o hook como única fonte de verdade
     const navigate = useNavigate();
+
+    // Determina se a visão é de cliente com base no utilizador autenticado
+    const isClient = user?.userType === 'CLIENT';
+
     const [listData, setListData] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -19,6 +22,7 @@ const RequestService = () => {
     const [selectedProviderId, setSelectedProviderId] = useState(null);
 
     useEffect(() => {
+        // Apenas executa se o utilizador estiver carregado
         if (!user) {
             setLoading(false);
             return;
@@ -29,9 +33,11 @@ const RequestService = () => {
                 setLoading(true);
                 setError('');
                 if (isClient) {
+                    // Lógica para o cliente: buscar prestadores
                     const providers = await getActiveProviders();
                     setListData(providers);
                 } else {
+                    // Lógica para o prestador: buscar estatísticas com o ID real
                     const providerStats = await getProviderStats(user.id);
                     setStats(providerStats);
                     setListData(providerStats.newRequests || []);
@@ -44,7 +50,7 @@ const RequestService = () => {
             }
         };
         fetchData();
-    }, [user, isClient]);
+    }, [user, isClient]); // Reage a mudanças no utilizador
 
     const handleOpenModal = (providerId) => {
         setSelectedProviderId(providerId);
@@ -57,7 +63,7 @@ const RequestService = () => {
         { title: "Novos Pedidos", value: stats?.newRequests?.length ?? 0, icon: <FontAwesomeIcon icon={faFileAlt} />, color: "#DBEAFE" },
         { title: "Aceites Hoje", value: stats?.acceptedToday?.length ?? 0, icon: <FontAwesomeIcon icon={faThumbsUp} />, color: "#dbf9eb" },
         { title: "Pendentes", value: stats?.pendingServices?.length ?? 0, icon: <FontAwesomeIcon icon={faHourglassHalf} />, color: "#fff5db" },
-        { title: "Taxa Aceitação", value: `${stats?.acceptanceRate.toFixed(0) ?? 0}%`, icon: <FontAwesomeIcon icon={faChartLine} />, color: "#f4e8ff" },
+        { title: "Taxa Aceitação", value: `${stats ? stats.acceptanceRate.toFixed(0) : 0}%`, icon: <FontAwesomeIcon icon={faChartLine} />, color: "#f4e8ff" },
     ];
 
     if (loading) return <RequestServiceStyle.Container>A carregar...</RequestServiceStyle.Container>;
@@ -71,6 +77,7 @@ const RequestService = () => {
                     <p>{isClient ? "Encontre o profissional ideal para o seu serviço" : "Gerencie as suas solicitações de orçamento"}</p>
                 </RequestServiceStyle.Header>
 
+                {/* Esta condição agora funciona perfeitamente, mostrando os KPIs apenas se NÃO for cliente */}
                 {!isClient && (
                     <RequestServiceStyle.SummaryGrid>
                         {summaryData.map((item, i) => (
@@ -91,7 +98,7 @@ const RequestService = () => {
                     </RequestServiceStyle.RecentTitle>
 
                     <RequestServiceStyle.ServiceList>
-                        {listData.map((item, i) => (
+                        {listData && listData.map((item, i) => (
                             <RequestServiceStyle.ServiceItem key={i}>
                                 <RequestServiceStyle.Avatar src={`https://i.pravatar.cc/48?img=${i+1}`} />
                                 <RequestServiceStyle.ServiceInfo>
@@ -99,13 +106,11 @@ const RequestService = () => {
                                     <RequestServiceStyle.ServiceName>{isClient ? item.category.name : item.description}</RequestServiceStyle.ServiceName>
                                     {!isClient && <RequestServiceStyle.ServiceTime>{new Date(item.requestDate).toLocaleDateString()}</RequestServiceStyle.ServiceTime>}
                                 </RequestServiceStyle.ServiceInfo>
-
                                 {isClient && (
                                     <RequestServiceStyle.HireButton onClick={() => handleOpenModal(item.company.id)}>
                                         Contratar
                                     </RequestServiceStyle.HireButton>
                                 )}
-
                                 {!isClient && (
                                     <RequestServiceStyle.ViewButton onClick={() => handleViewService(item.id)}>
                                         <FontAwesomeIcon icon={faComments} /> Ver serviço
