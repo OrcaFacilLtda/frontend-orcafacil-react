@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React,{useContext} from 'react';
+import { AuthContext } from '../../../../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import SidebarStyle from './Sidebar.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
@@ -7,11 +8,13 @@ import sidebarLinks from './sidebarLinks';
 
 export default function Sidebar({ user }) {
     const navigate = useNavigate();
-    const location = useLocation();
+    const { logout } = useContext(AuthContext);
 
     const handleLogout = () => {
-        localStorage.clear();
+        localStorage.removeItem('auth-token');
+        logout();
         navigate('/login');
+
     };
 
     const isActive = (path) => (location.pathname.includes(path) ? 'active' : '');

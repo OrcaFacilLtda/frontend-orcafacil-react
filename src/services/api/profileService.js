@@ -1,6 +1,5 @@
 import api from './api';
 
-// Busca os dados de um usuário (serve para cliente e para a parte 'user' do prestador)
 export const getUserProfile = async (userId) => {
     try {
         const response = await api.get(`/api/users/${userId}`);
@@ -11,7 +10,6 @@ export const getUserProfile = async (userId) => {
     }
 };
 
-// Busca os dados completos de um prestador (user + company + category)
 export const getProviderProfile = async (providerId) => {
     try {
         const response = await api.get(`/api/providers/${providerId}`);
@@ -22,8 +20,6 @@ export const getProviderProfile = async (providerId) => {
     }
 };
 
-
-// Atualiza o perfil de um CLIENTE
 export const updateClientProfile = async (userId, userData) => {
     try {
         const response = await api.put(`/api/users/${userId}`, userData);
@@ -34,7 +30,6 @@ export const updateClientProfile = async (userId, userData) => {
     }
 };
 
-// Atualiza o perfil de um PRESTADOR
 export const updateProviderProfile = async (providerId, providerData) => {
     try {
         const response = await api.put(`/api/providers/${providerId}`, providerData);
@@ -46,7 +41,6 @@ export const updateProviderProfile = async (providerId, providerData) => {
 };
 
 /**
- * Busca os dados de um utilizador pelo seu email.
  * @param {string} email - O email do utilizador.
  */
 export const getProfileByEmail = async (email) => {

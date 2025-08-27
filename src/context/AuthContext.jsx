@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }) => {
         try {
             await api.post("/login", { email, password });
 
-            // Pega dados do usuário após login
             const response = await api.get("/api/users/me");
             const userData = response.data.data;
             setUser(userData);

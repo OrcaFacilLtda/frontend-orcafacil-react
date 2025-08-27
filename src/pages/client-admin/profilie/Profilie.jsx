@@ -1,8 +1,8 @@
-// src/pages/client-admin/profilie/Profilie.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react'; // 1. useContext importado
 import Swal from 'sweetalert2';
 import ProfileStyle from './Profilie.Style.jsx';
 import Input from '../../../components/ui/general-input/GeneralInput.jsx';
+import { AuthContext } from '../../../context/AuthContext'; // 2. AuthContext importado
 import {
     getUserProfile,
     getProviderProfile,
@@ -11,28 +11,35 @@ import {
 } from '../../../services/api/profileService';
 
 const Profile = ({ isClient }) => {
-    const MOCKED_USER_ID = 1;
+    const { user: loggedInUser } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
+        if (!loggedInUser) {
+            setLoading(false);
+            setError("Usuário não autenticado.");
+            return;
+        }
+
         const fetchProfileData = async () => {
             try {
                 setLoading(true);
+                const userId = loggedInUser.id;
                 let profileData;
+
                 if (isClient) {
-                    profileData = await getUserProfile(MOCKED_USER_ID);
+                    profileData = await getUserProfile(userId);
                 } else {
-                    profileData = await getProviderProfile(MOCKED_USER_ID);
+                    profileData = await getProviderProfile(userId);
                 }
 
                 const { user, company, category } = profileData || {};
                 const userData = isClient ? profileData : user;
 
                 setFormData({
-                    // User data
                     name: userData?.name || '',
                     email: userData?.email || '',
                     phone: userData?.phone || '',
@@ -49,10 +56,10 @@ const Profile = ({ isClient }) => {
                     complement: userData?.address?.complement || '',
                     addressId: userData?.address?.id || null,
 
-                    // Provider-specific data
                     legalName: company?.legalName || '',
                     cnpj: company?.cnpj || '',
                     categoryId: category?.id || '',
+                    companyId: company?.id || null,
                 });
 
             } catch (err) {
@@ -64,7 +71,7 @@ const Profile = ({ isClient }) => {
         };
 
         fetchProfileData();
-    }, [isClient]);
+    }, [isClient, loggedInUser]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,6 +80,12 @@ const Profile = ({ isClient }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!loggedInUser) {
+            Swal.fire('Erro!', 'Sessão expirada. Por favor, faça login novamente.', 'error');
+            return;
+        }
+        const userId = loggedInUser.id;
 
         const addressRequest = {
             id: formData.addressId,
@@ -88,19 +101,19 @@ const Profile = ({ isClient }) => {
 
         try {
             if (isClient) {
-                await updateClientProfile(MOCKED_USER_ID, userUpdateRequest);
+                await updateClientProfile(userId, userUpdateRequest);
             } else {
                 const providerUpdateRequest = {
                     userUpdateRequest,
                     companyUpdateRequest: {
-                        id: MOCKED_USER_ID,
+                        id: formData.companyId,
                         legalName: formData.legalName,
                         cnpj: formData.cnpj,
                         address: addressRequest,
                     },
                     categoryId: formData.categoryId
                 };
-                await updateProviderProfile(MOCKED_USER_ID, providerUpdateRequest);
+                await updateProviderProfile(userId, providerUpdateRequest);
             }
             Swal.fire('Sucesso!', 'Perfil atualizado com sucesso.', 'success');
         } catch (err) {
@@ -115,32 +128,26 @@ const Profile = ({ isClient }) => {
     return (
         <ProfileStyle.Container>
             <h2>Editar Perfil</h2>
-
             <ProfileStyle.Form onSubmit={handleSubmit}>
                 <ProfileStyle.Column>
-                    <Input label="Nome:" name="name" value={formData.name} onChange={handleChange} />
-                    <Input label="Email:" name="email" value={formData.email} onChange={handleChange} />
-                    <Input label="Telefone:" name="phone" value={formData.phone} onChange={handleChange} />
-                    <Input label="CPF:" name="cpf" value={formData.cpf} onChange={handleChange} disabled />
-
-                    {!isClient && <Input label="Razão Social:" name="legalName" value={formData.legalName} onChange={handleChange} />}
-                    {!isClient && <Input label="CNPJ:" name="cnpj" value={formData.cnpj} onChange={handleChange} disabled />}
-
-                    <Input label="CEP:" name="zipCode" value={formData.zipCode} onChange={handleChange} />
-                    <Input label="Cidade:" name="city" value={formData.city} onChange={handleChange} />
-                    <Input label="Bairro:" name="neighborhood" value={formData.neighborhood} onChange={handleChange} />
+                    <Input label="Nome:" name="name" value={formData.name || ''} onChange={handleChange} />
+                    <Input label="Email:" name="email" value={formData.email || ''} onChange={handleChange} />
+                    <Input label="Telefone:" name="phone" value={formData.phone || ''} onChange={handleChange} />
+                    <Input label="CPF:" name="cpf" value={formData.cpf || ''} onChange={handleChange} disabled />
+                    {!isClient && <Input label="Razão Social:" name="legalName" value={formData.legalName || ''} onChange={handleChange} />}
+                    {!isClient && <Input label="CNPJ:" name="cnpj" value={formData.cnpj || ''} onChange={handleChange} disabled />}
+                    <Input label="CEP:" name="zipCode" value={formData.zipCode || ''} onChange={handleChange} />
+                    <Input label="Cidade:" name="city" value={formData.city || ''} onChange={handleChange} />
+                    <Input label="Bairro:" name="neighborhood" value={formData.neighborhood || ''} onChange={handleChange} />
                 </ProfileStyle.Column>
-
                 <ProfileStyle.Column>
-                    <Input label="Rua:" name="street" value={formData.street} onChange={handleChange} />
-                    <Input label="Número:" name="number" value={formData.number} onChange={handleChange} />
-                    <Input label="Complemento:" name="complement" value={formData.complement} onChange={handleChange} />
-
-                    <Input label="Senha Atual:" type="password" name="currentPassword" value={formData.currentPassword} onChange={handleChange} placeholder="Deixe em branco para não alterar"/>
-                    <Input label="Nova Senha:" type="password" name="newPassword" value={formData.newPassword} onChange={handleChange} placeholder="Deixe em branco para não alterar"/>
+                    <Input label="Rua:" name="street" value={formData.street || ''} onChange={handleChange} />
+                    <Input label="Número:" name="number" value={formData.number || ''} onChange={handleChange} />
+                    <Input label="Complemento:" name="complement" value={formData.complement || ''} onChange={handleChange} />
+                    <Input label="Senha Atual:" type="password" name="currentPassword" value={formData.currentPassword || ''} onChange={handleChange} placeholder="Deixe em branco para não alterar"/>
+                    <Input label="Nova Senha:" type="password" name="newPassword" value={formData.newPassword || ''} onChange={handleChange} placeholder="Deixe em branco para não alterar"/>
                 </ProfileStyle.Column>
             </ProfileStyle.Form>
-
             <ProfileStyle.ButtonsWrapper>
                 <button disabled>Apagar usuário</button>
                 <button className="primary" onClick={handleSubmit}>Salvar Alterações</button>

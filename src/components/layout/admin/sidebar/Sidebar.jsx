@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
 import SidebarStyle from './Sidebar.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,13 +8,16 @@ import {
     faCogs,
     faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
+import { AuthContext } from '../../../../context/AuthContext'; // 2. Importe o seu AuthContext
+
 
 const Sidebar = () => {
     const navigate = useNavigate();
-
+    const { logout } = useContext(AuthContext);
     const handleLogout = () => {
         localStorage.removeItem('auth-token');
         navigate('/login');
+        logout();
     };
 
     return (
