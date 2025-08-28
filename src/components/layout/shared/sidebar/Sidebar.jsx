@@ -1,20 +1,17 @@
 import React,{useContext} from 'react';
 import { AuthContext } from '../../../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import SidebarStyle from './Sidebar.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import sidebarLinks from './sidebarLinks';
 
 export default function Sidebar({ user }) {
-    const navigate = useNavigate();
     const { logout } = useContext(AuthContext);
 
-    const handleLogout = () => {
-        localStorage.removeItem('auth-token');
+    const handleLogout = (e) => {
+        e.preventDefault();
         logout();
-        navigate('/login');
-
     };
 
     const isActive = (path) => (location.pathname.includes(path) ? 'active' : '');
@@ -51,7 +48,6 @@ export default function Sidebar({ user }) {
 
             <SidebarStyle.FooterContainer>
                 <SidebarStyle.Footer>
-                    <img src={user.avatar} alt="avatar" />
                     <div>
                         <strong>{user.name}</strong>
                         <span>{user.categoria}</span>

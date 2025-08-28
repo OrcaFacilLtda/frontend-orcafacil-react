@@ -5,6 +5,9 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) => {
     const [formData, setFormData] = useState({});
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     useEffect(() => {
         if (user) {
@@ -39,7 +42,17 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
 
     const handleSave = (e) => {
         e.preventDefault();
-        onSave(formData);
+
+        const saveData = JSON.parse(JSON.stringify(formData));
+
+        if (newPassword && newPassword === confirmPassword) {
+            saveData.user.currentPassword = currentPassword;
+            saveData.user.password = newPassword;
+        } else {
+            delete saveData.user.password;
+        }
+
+        onSave(saveData);
     };
 
     if (!isOpen) return null;
@@ -83,6 +96,23 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
                             <input type="text" value={formData.user?.address?.zipCode || ''} onChange={(e) => handleAddressChange(e, 'zipCode')} />
                         </div>
                     </EditUserModalStyle.FormGrid>
+
+                    {/* Password Fields */}
+                    <hr />
+                    <h4>Alterar Senha</h4>
+                    <EditUserModalStyle.FormGrid>
+                        <div>
+                            <label>Senha Atual:</label>
+                            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                        </div>
+                        <div>
+                            <label>Nova Senha:</label>
+                            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                            <label>Confirmar Nova Senha:</label>
+                            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                        </div>
+                    </EditUserModalStyle.FormGrid>
+
                     <EditUserModalStyle.Buttons>
                         <button type="button" className="btn-delete" onClick={onDelete}>Apagar</button>
                         <button type="submit" className="btn-save">Guardar Alterações</button>

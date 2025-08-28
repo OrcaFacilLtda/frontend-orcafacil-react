@@ -8,10 +8,9 @@ import { getActiveProviders, getProviderStats } from "../../../services/api/prov
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const RequestService = () => {
-    const { user } = useAuth(); // Usar o hook como única fonte de verdade
+    const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Determina se a visão é de cliente com base no utilizador autenticado
     const isClient = user?.userType === 'CLIENT';
 
     const [listData, setListData] = useState([]);
@@ -22,7 +21,6 @@ const RequestService = () => {
     const [selectedProviderId, setSelectedProviderId] = useState(null);
 
     useEffect(() => {
-        // Apenas executa se o utilizador estiver carregado
         if (!user) {
             setLoading(false);
             return;
@@ -33,11 +31,9 @@ const RequestService = () => {
                 setLoading(true);
                 setError('');
                 if (isClient) {
-                    // Lógica para o cliente: buscar prestadores
                     const providers = await getActiveProviders();
                     setListData(providers);
                 } else {
-                    // Lógica para o prestador: buscar estatísticas com o ID real
                     const providerStats = await getProviderStats(user.id);
                     setStats(providerStats);
                     setListData(providerStats.newRequests || []);

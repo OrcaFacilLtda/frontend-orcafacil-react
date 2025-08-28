@@ -9,18 +9,14 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Inicializa autenticação ao montar
     useEffect(() => {
         const initializeAuth = async () => {
             try {
-                // Ajuste do endpoint
                 const response = await api.get("/api/users/me");
 
-                // response.data.data porque ApiResponse retorna { success, message, data }
                 const userData = response.data.data;
                 setUser(userData);
 
-                // Redireciona de acordo com tipo
                 redirectUser(userData.userType);
             } catch (error) {
                 console.error("Erro ao inicializar auth:", error);
@@ -57,12 +53,14 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await api.post("/logout");
+            console.log("Logout realizado com sucesso.");
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
         } finally {
             setUser(null);
             navigate("/login");
         }
     };
-
     if (loading) return <div>A carregar sessão...</div>;
 
     return (

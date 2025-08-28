@@ -1,5 +1,4 @@
 import React,{useContext} from 'react';
-import { useNavigate } from 'react-router-dom';
 import SidebarStyle from './Sidebar.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,13 +11,10 @@ import { AuthContext } from '../../../../context/AuthContext'; // 2. Importe o s
 
 
 const Sidebar = () => {
-    const navigate = useNavigate();
     const { logout } = useContext(AuthContext);
-    const handleLogout = () => {
-        localStorage.removeItem('auth-token');
-        navigate('/login');
-        logout();
-    };
+    const handleLogout = (e) => {
+        e.preventDefault();
+        logout();     };
 
     return (
         <SidebarStyle.SidebarContainer>
@@ -47,7 +43,7 @@ const Sidebar = () => {
                 </SidebarStyle.NavItem>
             </SidebarStyle.NavList>
 
-            <SidebarStyle.LogoutButton onClick={handleLogout}>
+            <SidebarStyle.LogoutButton as="button" type="button" onClick={handleLogout}>
                 <FontAwesomeIcon icon={faSignOutAlt} />
                 Sair
             </SidebarStyle.LogoutButton>

@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import CategoryStyle from './Category.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faSearch } from '@fortawesome/free-solid-svg-icons';
-import EditCategoryModal from '../../../components/ui/modals/edit-category-modal/EditCategoryModal.jsx';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import EditCategoryModal from '../../../components/ui/modals/edit-category-modal/EditCategoryModal';
 import {
     getAllCategories,
     createCategory,
@@ -71,7 +71,7 @@ export default function Category() {
                 try {
                     await deleteCategory(id);
                     Swal.fire('Apagada!', 'A categoria foi apagada.', 'success');
-                    fetchCategories(); // Recarrega a lista
+                    fetchCategories();
                 } catch (error) {
                     Swal.fire('Erro!', 'Não foi possível apagar a categoria.', 'error');
                 }
@@ -124,7 +124,6 @@ export default function Category() {
                 <CategoryStyle.Section>
                     <CategoryStyle.SectionHeader>
                         <h2>Categorias existentes</h2>
-                        {/* A lógica de filtro pode ser implementada aqui */}
                     </CategoryStyle.SectionHeader>
                     {loading ? <p>Carregando categorias...</p> : (
                         <CategoryStyle.List>

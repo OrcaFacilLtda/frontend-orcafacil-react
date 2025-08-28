@@ -80,8 +80,8 @@ import {
       border-radius: 8px;
       text-decoration: none;
       color: ${paletteColors.terciaryText};  
-      font-weight: ${fontWeights.medium}; 
-      font-size: ${fontSizes.sm};           
+      font-weight: ${fontWeights.medium};
+        font-size: ${fontSizes.xl};
       font-family: ${fontFamilies.primary};
 
       &:hover {
@@ -111,14 +111,9 @@ import {
   gap: 12px;
   font-family: ${fontFamilies.primary};
 
-  img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
 
   strong {
-    font-size: ${fontSizes.sm};           
+      font-size: ${fontSizes.xl};
     display: block;
     color: ${paletteColors.black};       
     font-family: ${fontFamilies.primary};
@@ -145,8 +140,8 @@ import {
     padding: 10px 0;
     border: none;
     background: transparent;
-    font-weight: ${fontWeights.medium}; 
-    font-size: ${fontSizes.sm};            
+    font-weight: ${fontWeights.medium};
+      font-size: ${fontSizes.xl};
     color: ${paletteColors.terciaryText}; 
     cursor: pointer;
     border-radius: 8px;

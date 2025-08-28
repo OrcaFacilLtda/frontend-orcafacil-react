@@ -4,10 +4,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { getServicesByProvider, getServicesByClient } from "../../../services/api/serviceService.js";
-import { useAuth } from "../../../hooks/useAuth.js"; // 1. Importar o useAuth
+import { useAuth } from "../../../hooks/useAuth.js";
 
 const Services = () => {
-    const { user } = useAuth(); // 2. Usar o hook para obter o utilizador logado
+    const { user } = useAuth();
     const isProvider = user?.userType === 'PROVIDER';
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
@@ -15,7 +15,6 @@ const Services = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // 3. Garantir que o código só executa se o utilizador estiver carregado
         if (!user) {
             setLoading(false);
             return;
@@ -27,19 +26,23 @@ const Services = () => {
                 setError('');
                 let data;
                 if (isProvider) {
-                    // 4. Usar o ID real do utilizador (que é o mesmo que o companyId para o prestador)
                     data = await getServicesByProvider(user.id);
                 } else {
-                    // 4. Usar o ID real do cliente
                     data = await getServicesByClient(user.id);
                 }
 
-                // Filtra para mostrar apenas serviços que estão "em andamento"
-                const inProgressServices = data.filter(service =>
-                    !['REQUEST_SENT', 'REJECTED', 'COMPLETED'].includes(service.serviceStatus)
-                );
+                let filteredServices;
+                if (isProvider) {
+                    filteredServices = data.filter(service =>
+                        !['REQUEST_SENT', 'REJECTED', 'COMPLETED'].includes(service.serviceStatus)
+                    );
+                } else {
+                    filteredServices = data.filter(service =>
+                        !['REJECTED', 'COMPLETED'].includes(service.serviceStatus)
+                    );
+                }
 
-                setServices(inProgressServices);
+                setServices(filteredServices);
 
             } catch (err) {
                 setError("Falha ao carregar os serviços.");
@@ -50,7 +53,7 @@ const Services = () => {
         };
 
         fetchServices();
-    }, [user, isProvider]); // A dependência agora é o objeto 'user'
+    }, [user, isProvider]);
 
 
     const handleViewService = (id) => {
@@ -84,21 +87,23 @@ const Services = () => {
             </ServiceStyle.FilterArea>
 
             {services.length === 0 && !loading ? (
-                <p>Nenhum serviço em andamento encontrado.</p>
+                <p>Nenhum serviço em andamento ou solicitado encontrado.</p>
             ) : (
                 services.map((service, index) => (
                     <ServiceStyle.Card key={index}>
                         <ServiceStyle.TitleRow>
                             <h3>{service.description.substring(0, 50)}...</h3>
                             <ServiceStyle.Status status={service.serviceStatus}>
-                                {service.serviceStatus.replace('_', ' ')}
+                                {service.serviceStatus.replace(/_/g, ' ')}
                             </ServiceStyle.Status>
                         </ServiceStyle.TitleRow>
                         <ServiceStyle.Info>
                             {isProvider ? (
-                                <>Cliente: {service.user.name}</>
+                                <>Cliente: {service.user?.name || 'Não informado'}</>
                             ) : (
-                                <>Prestador: {service.company.legalName}</>
+                                // --- CORREÇÃO APLICADA AQUI ---
+                                // Adiciona uma verificação para evitar o erro se 'service.company' for nulo.
+                                <>Prestador: {service.company?.legalName || 'Aguardando aceitação'}</>
                             )}
                             <br />
                             Solicitado em: {new Date(service.requestDate).toLocaleDateString()}

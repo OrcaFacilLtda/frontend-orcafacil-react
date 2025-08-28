@@ -33,6 +33,7 @@ const NavList = styled.ul`
 `;
 
 const NavItem = styled.li`
+    font-size: ${fontSizes.xl};
     margin: 6px 0;
     font-family: ${fontFamilies.primary};
 `;
@@ -68,12 +69,13 @@ const LogoutButton = styled.button`
     border: none;
     background: none;
     color: #dc2626;  
-    font-weight: ${fontWeights.medium}; // 500
+    font-weight: ${fontWeights.medium}
     cursor: pointer;
     width: calc(100% - 20px);
     text-align: left;
     border-radius: 8px;
     font-family: ${fontFamilies.primary};
+    font-size: ${fontSizes.xl};
 
     &:hover {
         background: #fef2f2; 
