@@ -1,4 +1,3 @@
-// sidebarLinks.js
 import {
     faToolbox,
     faGears,
@@ -31,7 +30,7 @@ const sidebarLinks = [
         toProvider: '/provider/performance',
         toClient: null,
         icon: faChartLine,
-        showFor: ['provider'], // só provider
+        showFor: ['provider'],
     },
     {
         key: 'profile',

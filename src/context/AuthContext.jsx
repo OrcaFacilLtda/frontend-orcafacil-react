@@ -1,11 +1,13 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api/api.js";
+import { getProviderProfile } from "../services/api/providerService.js";
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);          // Dados básicos do usuário
+    const [providerData, setProviderData] = useState(null); // Dados extras do provider
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -13,9 +15,13 @@ export const AuthProvider = ({ children }) => {
         const initializeAuth = async () => {
             try {
                 const response = await api.get("/api/users/me");
-
                 const userData = response.data.data;
                 setUser(userData);
+
+                if (userData.userType === "PROVIDER") {
+                    const profile = await getProviderProfile(userData.id);
+                    setProviderData(profile);
+                }
 
                 redirectUser(userData.userType);
             } catch (error) {
@@ -43,9 +49,16 @@ export const AuthProvider = ({ children }) => {
             const response = await api.get("/api/users/me");
             const userData = response.data.data;
             setUser(userData);
+
+            if (userData.userType === "PROVIDER") {
+                const profile = await getProviderProfile(userData.id);
+                setProviderData(profile);
+            }
+
             redirectUser(userData.userType);
         } catch (error) {
             setUser(null);
+            setProviderData(null);
             throw error;
         }
     };
@@ -58,13 +71,15 @@ export const AuthProvider = ({ children }) => {
             console.error("Erro ao fazer logout:", error);
         } finally {
             setUser(null);
+            setProviderData(null);
             navigate("/login");
         }
     };
+
     if (loading) return <div>A carregar sessão...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, providerData, login, logout, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );

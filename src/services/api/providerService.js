@@ -14,6 +14,17 @@ export const getActiveProviders = async () => {
     }
 };
 
+
+export const getProvidersById = async (userId) => {
+    try {
+        const response = await api.get(`/api/providers/${userId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao buscar prestador:", error);
+        throw error;
+    }
+};
+
 /**
  * Busca as estatísticas de desempenho para um prestador específico.
  * Usado no Dashboard de Performance e na tela de Serviços do prestador.
@@ -85,6 +96,16 @@ export const getProviderChartData = async (companyId) => {
         return response.data.data;
     } catch (error) {
         console.error("Erro ao buscar dados dos gráficos do prestador:", error);
+        throw error;
+    }
+};
+
+export const getProviderStatsKPI = async (companyId) => {
+    try {
+        const response = await api.get(`/api/statistics/provider/${companyId}`);
+        return response.data.data; // já com novos pedidos, aceites, pendentes, taxa de aceitação
+    } catch (error) {
+        console.error("Erro ao buscar KPIs do prestador:", error);
         throw error;
     }
 };

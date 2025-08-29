@@ -1,20 +1,20 @@
-// ClientLayout.jsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './sidebar/Sidebar.jsx';
 import SharedLayoutStyle from './SharedLayout.Style';
-
+import {AuthContext} from "../../../context/AuthContext.jsx" 
+import { useContext } from 'react';
 const ClientLayout = () => {
-    const user = {
-        name: 'Maria Souza',
+    const {user} = useContext(AuthContext);
+    const dataUser = {
+        name: user.name,
         role: 'client',
-        avatar: 'https://i.pravatar.cc/101',
         categoria: 'Cliente',
     };
 
     return (
         <SharedLayoutStyle.Container>
-            <Sidebar user={user} />
+            <Sidebar user={dataUser} />
             <SharedLayoutStyle.MainContent>
                 <Outlet />
             </SharedLayoutStyle.MainContent>

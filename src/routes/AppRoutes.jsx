@@ -31,7 +31,6 @@ const AppRoutes = () => (
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
 
-        {/* Protected areas by user type */}
         <Route
             path="/admin"
             element={

@@ -3,18 +3,19 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './sidebar/Sidebar.jsx';
 import SharedLayoutStyle from './SharedLayout.Style';
-
+import {AuthContext} from "../../../context/AuthContext.jsx"
+import { useContext } from 'react';
 const ProviderLayout = () => {
-    const user = {
-        name: 'João Silva',
+    const {user} = useContext(AuthContext);
+    const dataUser = {
+        name: user.name,
         role: 'provider',
         avatar: 'https://i.pravatar.cc/100',
-        categoria: 'Eletricista',
     };
 
     return (
         <SharedLayoutStyle.Container>
-            <Sidebar user={user} />
+            <Sidebar user={dataUser} />
             <SharedLayoutStyle.MainContent>
                 <Outlet />
             </SharedLayoutStyle.MainContent>

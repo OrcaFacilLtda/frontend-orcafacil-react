@@ -5,7 +5,7 @@ import GeneralInput from "../../general-input/GeneralInput.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { createServiceRequest } from "../../../../services/api/serviceService.js";
-import { useAuth } from "../../../../hooks/useAuth.js"; // 1. IMPORTAR O useAuth
+import { useAuth } from "../../../../hooks/useAuth.js";
 
 const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
     const { user } = useAuth();
@@ -25,13 +25,13 @@ const ServiceRequestModal = ({ isOpen, onClose, providerId }) => {
         const serviceData = {
             description: description,
             company: { id: providerId },
-            user: { id: user.id } // 4. SUBSTITUIR O MOCKED_CLIENT_ID PELO ID REAL
+            user: { id: user.id }
         };
 
         try {
             await createServiceRequest(serviceData);
             Swal.fire('Sucesso!', 'A sua solicitação de serviço foi enviada.', 'success');
-            setDescription(''); // Limpa o campo
+            setDescription('');
             onClose();
         } catch (error) {
             Swal.fire('Erro!', 'Não foi possível enviar a sua solicitação.', 'error');

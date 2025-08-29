@@ -1,198 +1,281 @@
-import React, { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Swal from 'sweetalert2';
+import OrderProcessStyle, { ButtonContainer } from "./OrderProcess.Style.jsx";
 import {
-    faCheckCircle,
-    faCalendarAlt,
-    faClipboardList,
-    faTags,
-} from "@fortawesome/free-solid-svg-icons";
-import OrderStepsStyle from "./OrderProcess.Style.jsx";
+    getServiceDetails,
+    confirmServiceStep,
+    sendVisitProposal,
+    sendDateProposal,
+    sendMaterialList,
+    requestBudgetRevision,
+    submitEvaluation,
+    getVisitProposals,
+    getDateProposals
+} from "../../../services/api/orderService.js";
+import { useAuth } from "../../../hooks/useAuth.js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 
-const steps = [
-    { id: 1, title: "Solicitação Criada", description: "Sua solicitação foi criada com sucesso", requiresConfirmation: false },
-    { id: 2, title: "Aguardando Confirmação de Visita", description: "Confirme a visita técnica agendada", requiresConfirmation: true },
-    { id: 3, title: "Enviar Prazo", description: "Faça o envio do prazo", requiresConfirmation: true },
-    { id: 4, title: "Orçamento", description: "Aguardando orçamento do prestador", requiresConfirmation: true },
-    { id: 5, title: "Execução do Serviço", description: "Serviço será executado", requiresConfirmation: false },
-    { id: 6, title: "Finalização", description: "Confirmar conclusão e avaliação", requiresConfirmation: true },
-];
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+};
 
-const OrderSteps = ({ currentStep, confirmations = {}, isPrestador = true }) => {
-    const [visitDate, setVisitDate] = useState(null);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [showRangeInput, setShowRangeInput] = useState(false);
-    const [maoDeObra, setMaoDeObra] = useState("");
+const OrderProcess = () => {
+    const { id: serviceId } = useParams();
+    const { user } = useAuth();
+    const [service, setService] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [avaliacao, setAvaliacao] = useState(0);
+    const [visitProposals, setVisitProposals] = useState([]);
+    const [dateProposals, setDateProposals] = useState([]);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [materials, setMaterials] = useState([]);
+    const [materialName, setMaterialName] = useState('');
+    const [materialQuantity, setMaterialQuantity] = useState(1);
+    const [materialPrice, setMaterialPrice] = useState(0);
 
-    const canClientAct = (stepId) => {
-        if (stepId === 2) return !!visitDate;
-        if (stepId === 3) return !!startDate && !!endDate;
-        if (stepId === 4) return !!maoDeObra;
-        return true;
+    const isProvider = user?.userType === "PROVIDER";
+
+    const fetchAllData = async () => {
+        if (!serviceId) return;
+        try {
+            setLoading(true);
+            const [serviceData, visitData, dateData] = await Promise.all([
+                getServiceDetails(serviceId),
+                getVisitProposals(serviceId),
+                getDateProposals(serviceId)
+            ]);
+            setService(serviceData);
+            setVisitProposals(visitData);
+            setDateProposals(dateData);
+            setError("");
+        } catch (err) {
+            console.error(err);
+            setError("Não foi possível carregar os detalhes do processo.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    return (
-        <OrderStepsStyle.OrderDetailsWrapper>
-            <h3>Etapas do Serviço</h3>
+    useEffect(() => {
+        (async () => {
+            await fetchAllData();
+        })();
+    }, [serviceId]);
 
-            {steps.map((step) => {
-                const isCompleted = currentStep > step.id;
-                const isActive = currentStep === step.id;
-                const confirmedByBoth =
-                    !step.requiresConfirmation || (confirmations[step.id]?.cliente && confirmations[step.id]?.prestador);
+    const showAlert = (title, text, icon = 'info') => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            confirmButtonColor: '#2B4C7E',
+            cancelButtonColor: '#6c757d'
+        });
+    };
+
+    const handleConfirmStep = async (stepName) => {
+        if (!user || !service) return;
+        try {
+            await confirmServiceStep(service.id, user.id, stepName);
+            await fetchAllData();
+        } catch (err) { console.error(err); setError("Erro ao confirmar a etapa."); }
+    };
+
+    const handleAddMaterial = () => {
+        if (!materialName || materialQuantity <= 0 || materialPrice < 0) {
+            showAlert("Atenção!", "Por favor, preencha todos os campos do material corretamente.", "warning");
+            return;
+        }
+        const newMaterial = { name: materialName, quantity: parseInt(materialQuantity, 10), unitPrice: parseFloat(materialPrice) };
+        setMaterials([...materials, newMaterial]);
+        setMaterialName(''); setMaterialQuantity(1); setMaterialPrice(0);
+    };
+
+    const handleSendMaterials = async () => {
+        if (materials.length === 0) {
+            showAlert("Atenção!", "Adicione pelo menos um material à lista antes de enviar.", "warning");
+            return;
+        }
+        try {
+            await sendMaterialList(service.id, materials);
+            await fetchAllData();
+        } catch (err) { console.error(err); setError("Erro ao enviar a lista de materiais."); }
+    };
+
+    const handleRequestRevision = async () => {
+        if (!user || !service) return;
+        try {
+            await requestBudgetRevision(service.id, user.id);
+            await fetchAllData();
+        } catch (err) { console.error(err); setError("Erro ao solicitar a revisão."); }
+    };
+
+    const handleEvaluation = async () => {
+        if (avaliacao === 0) {
+            showAlert("Atenção!", "Por favor, selecione de 1 a 5 estrelas para a avaliação.", "warning");
+            return;
+        }
+        if (!user || !service) return;
+        try {
+            await submitEvaluation(service.id, user.id, avaliacao);
+            await fetchAllData();
+        } catch (err) { console.error(err); setError("Erro ao enviar avaliação."); }
+    };
+
+    const handleSendVisitProposal = async (date) => {
+        if (!date) {
+            showAlert("Atenção!", "Por favor, selecione uma data para a visita.", "warning");
+            return;
+        }
+        const proposerRole = isProvider ? "PROVIDER" : "CLIENT";
+        await sendVisitProposal(service.id, date, proposerRole);
+        await fetchAllData();
+    };
+
+    const handleSendDateProposals = async () => {
+        if (!startDate || !endDate) {
+            showAlert("Atenção!", "Por favor, selecione a data de início e de fim.", "warning");
+            return;
+        }
+        const proposerRole = isProvider ? "PROVIDER" : "CLIENT";
+        await sendDateProposal(service.id, startDate, endDate, proposerRole);
+        await fetchAllData();
+    };
+
+    if (loading) return <div>Carregando...</div>;
+    if (error) return <div style={{ color: "red" }}>{error}</div>;
+    if (!service) return <div>Serviço não encontrado.</div>;
+
+    const etapas = [
+        { id: 1, name: "start", title: "Solicitação Enviada", confirmed: true },
+        { id: 2, name: "visit", title: "Visita Técnica", confirmed: service.clientVisitConfirmed && service.providerVisitConfirmed, lastProposal: visitProposals[visitProposals.length - 1] },
+        { id: 3, name: "dates", title: "Período do Serviço", confirmed: service.clientDatesConfirmed && service.providerDatesConfirmed, lastProposal: dateProposals[dateProposals.length - 1] },
+        { id: 4, name: "materials", title: "Orçamento e Materiais", confirmed: service.clientMaterialsConfirmed && service.providerMaterialsConfirmed, canSubmitMaterials: isProvider, canRequestRevision: !isProvider },
+        { id: 5, name: "finalize", title: "Finalização", confirmed: service.budgetFinalized, canEvaluate: !isProvider }
+    ];
+
+    const etapaAtualIndex = etapas.findIndex(e => !e.confirmed);
+    const etapaAtual = etapaAtualIndex === -1 ? etapas.length + 1 : etapaAtualIndex + 1;
+
+    return (
+        <OrderProcessStyle.OrderDetailsWrapper>
+            <h3>Etapas do Serviço</h3>
+            {etapas.map((etapa) => {
+                const isCompleted = etapa.id < etapaAtual;
+                const isActive = etapa.id === etapaAtual;
+                const lastProposer = etapa.lastProposal?.propeser || etapa.lastProposal?.proposer;
+                const isMyTurn = !lastProposer || lastProposer !== user.userType;
+
+                let canProposeDates = isMyTurn;
+                if (etapa.id === 3 && !isProvider && !lastProposer) {
+                    canProposeDates = false;
+                }
 
                 return (
-                    <OrderStepsStyle.Step key={step.id} active={isActive} completed={isCompleted}>
-                        <OrderStepsStyle.StepCircle status={isCompleted ? "completed" : isActive ? "active" : "pending"}>
-                            {isCompleted ? <FontAwesomeIcon icon={faCheckCircle} /> : step.id}
-                        </OrderStepsStyle.StepCircle>
+                    <OrderProcessStyle.Step key={etapa.id} $active={isActive} $completed={isCompleted}>
+                        <OrderProcessStyle.StepCircle status={isCompleted ? "completed" : isActive ? "active" : "pending"}>
+                            {isCompleted ? <FontAwesomeIcon icon={faCheckCircle} /> : etapa.id}
+                        </OrderProcessStyle.StepCircle>
 
-                        <OrderStepsStyle.StepContent>
-                            <OrderStepsStyle.StepTitle>{step.title}</OrderStepsStyle.StepTitle>
-                            <OrderStepsStyle.StepDescription>{step.description}</OrderStepsStyle.StepDescription>
+                        <OrderProcessStyle.StepContent>
+                            <OrderProcessStyle.StepTitle>{etapa.title}</OrderProcessStyle.StepTitle>
 
-                            {/* Exibição de dados preenchidos */}
-                            {step.id === 2 && visitDate && (
-                                <p><strong>Visita Agendada:</strong> {visitDate.toLocaleDateString()}</p>
+                            {isActive && etapa.lastProposal && (
+                                <OrderProcessStyle.PendingText>
+                                    {lastProposer === user.userType
+                                        ? `Sua proposta foi enviada. Aguardando resposta.`
+                                        : `O ${lastProposer === 'PROVIDER' ? 'prestador' : 'cliente'} fez uma proposta.`
+                                    }
+                                </OrderProcessStyle.PendingText>
                             )}
-                            {step.id === 3 && startDate && endDate && (
-                                <p><strong>Prazo:</strong> {startDate.toLocaleDateString()} até {endDate.toLocaleDateString()}</p>
+                            {etapa.id === 3 && isActive && !isProvider && !lastProposer && (
+                                <OrderProcessStyle.PendingText>
+                                    Aguardando a proposta de datas do prestador.
+                                </OrderProcessStyle.PendingText>
                             )}
 
-                            {isActive && !confirmedByBoth && (
-                                <>
-                                    <OrderStepsStyle.ActionBox>
-                                        {/* Prestador age conforme a etapa */}
-                                        {step.id === 2 && isPrestador && (
-                                            <>
-                                                <OrderStepsStyle.SecondaryButton onClick={() => setShowCalendar(!showCalendar)}>
-                                                    <FontAwesomeIcon icon={faCalendarAlt} /> Agendar Visita
-                                                </OrderStepsStyle.SecondaryButton>
-                                            </>
-                                        )}
-
-                                        {step.id === 3 && isPrestador && (
-                                            <>
-                                                <OrderStepsStyle.SecondaryButton onClick={() => setShowRangeInput(!showRangeInput)}>
-                                                    <FontAwesomeIcon icon={faCalendarAlt} /> Definir Prazo
-                                                </OrderStepsStyle.SecondaryButton>
-                                            </>
-                                        )}
-
-                                        {step.id === 4 && isPrestador && (
-                                            <>
-                                                <label>
-                                                    Valor da Mão de Obra:
-                                                    <input
-                                                        type="text"
-                                                        value={maoDeObra}
-                                                        onChange={(e) => setMaoDeObra(e.target.value)}
-                                                        style={{ marginLeft: "10px", padding: "5px", width: "120px" }}
-                                                    />
-                                                </label>
-                                                <OrderStepsStyle.SecondaryButton style={{ marginTop: "10px" }}>
-                                                    <FontAwesomeIcon icon={faClipboardList} />
-                                                    Lista de Materiais
-                                                </OrderStepsStyle.SecondaryButton>
-                                            </>
-                                        )}
-
-                                        {/* Cliente age somente se o prestador já preencheu os dados */}
-                                        {!isPrestador && canClientAct(step.id) ? (
-                                            <>
-                                                {step.id === 4 && (
-                                                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                                                        <OrderStepsStyle.SecondaryButton>
-                                                            <FontAwesomeIcon icon={faClipboardList} />
-                                                            Ver Lista de Materiais
-                                                        </OrderStepsStyle.SecondaryButton>
-
-                                                        <OrderStepsStyle.SecondaryButton>
-                                                            <FontAwesomeIcon icon={faTags} />
-                                                            Solicitar Preço Mais Baixo
-                                                        </OrderStepsStyle.SecondaryButton>
-                                                    </div>
-                                                )}
-
-                                                {step.id === 6 && (
-                                                    <>
-                                                        <p>Avaliação do prestador:</p>
-                                                        <div style={{ display: "flex", gap: "5px" }}>
-                                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                                <span
-                                                                    key={star}
-                                                                    onClick={() => setAvaliacao(star)}
-                                                                    style={{
-                                                                        cursor: "pointer",
-                                                                        fontSize: "20px",
-                                                                        color: star <= avaliacao ? "#ffc107" : "#e4e5e9",
-                                                                    }}
-                                                                >
-                                                                    ★
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </>
-                                        ) : !isPrestador && (
-                                            <p>Aguardando o prestador antes de continuar...</p>
-                                        )}
-
-                                        {/* Botão de confirmação universal */}
-                                        {canClientAct(step.id) && (
-                                            <div style={{ marginTop: "10px" }}>
-                                                <OrderStepsStyle.ConfirmButton>✓ Confirmar</OrderStepsStyle.ConfirmButton>
-                                            </div>
-                                        )}
-                                    </OrderStepsStyle.ActionBox>
-
-                                    {/* Campos interativos */}
-                                    {step.id === 2 && showCalendar && (
-                                        <OrderStepsStyle.CalendarWrapper>
-                                            <input
-                                                type="date"
-                                                value={visitDate ? visitDate.toISOString().slice(0, 10) : ""}
-                                                onChange={(e) => setVisitDate(e.target.value ? new Date(e.target.value) : null)}
-                                                style={{ padding: "8px", borderRadius: "6px", border: "1.5px solid #ccc" }}
-                                            />
-                                        </OrderStepsStyle.CalendarWrapper>
+                            {isActive && (etapa.id === 2 || etapa.id === 3) && (
+                                <div>
+                                    {isMyTurn && etapa.lastProposal && (
+                                        <ButtonContainer>
+                                            <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>
+                                                Aceitar Proposta
+                                            </OrderProcessStyle.ConfirmButton>
+                                        </ButtonContainer>
                                     )}
 
-                                    {step.id === 3 && showRangeInput && (
-                                        <OrderStepsStyle.DateRangeWrapper>
-                                            <OrderStepsStyle.DateLabel htmlFor="startDate">De:</OrderStepsStyle.DateLabel>
-                                            <OrderStepsStyle.DateInput
-                                                id="startDate"
-                                                type="date"
-                                                value={startDate ? startDate.toISOString().slice(0, 10) : ""}
-                                                onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
-                                            />
-
-                                            <OrderStepsStyle.DateLabel htmlFor="endDate">Até:</OrderStepsStyle.DateLabel>
-                                            <OrderStepsStyle.DateInput
-                                                id="endDate"
-                                                type="date"
-                                                value={endDate ? endDate.toISOString().slice(0, 10) : ""}
-                                                onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
-                                            />
-                                        </OrderStepsStyle.DateRangeWrapper>
+                                    {isMyTurn && (
+                                        <>
+                                            {etapa.id === 2 && (
+                                                <div>
+                                                    <p>{etapa.lastProposal ? 'Ou envie uma contraproposta:' : 'Proponha uma data para a visita técnica:'}</p>
+                                                    <input type="date" onChange={(e) => handleSendVisitProposal(e.target.value)} />
+                                                </div>
+                                            )}
+                                            {etapa.id === 3 && canProposeDates && (
+                                                <div>
+                                                    <p>{etapa.lastProposal ? 'Ou envie uma contraproposta:' : 'Proponha o período do serviço:'}</p>
+                                                    <input type="date" onChange={(e) => setStartDate(e.target.value)} />
+                                                    <input type="date" onChange={(e) => setEndDate(e.target.value)} />
+                                                    <ButtonContainer>
+                                                        <OrderProcessStyle.ConfirmButton onClick={handleSendDateProposals}>
+                                                            {lastProposer ? 'Enviar Contraproposta' : 'Propor Datas'}
+                                                        </OrderProcessStyle.ConfirmButton>
+                                                    </ButtonContainer>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
-                                </>
+                                </div>
                             )}
 
-
-                            {isActive && confirmedByBoth && step.requiresConfirmation && (
-                                <OrderStepsStyle.PendingText>✔ Ambos confirmaram — pronto para próxima etapa</OrderStepsStyle.PendingText>
+                            {etapa.id === 4 && isActive && etapa.canSubmitMaterials && (
+                                <div>
+                                    <p>Adicionar materiais:</p>
+                                    <ul>{materials.map((mat, index) => (<li key={index}>{mat.quantity}x {mat.name} - R$ {mat.unitPrice.toFixed(2)}</li>))}</ul>
+                                    <input placeholder="Nome do material" value={materialName} onChange={(e) => setMaterialName(e.target.value)} />
+                                    <input type="number" placeholder="Quantidade" value={materialQuantity} onChange={(e) => setMaterialQuantity(e.target.value)} />
+                                    <input type="number" placeholder="Preço unitário" value={materialPrice} onChange={(e) => setMaterialPrice(e.target.value)} />
+                                    <ButtonContainer>
+                                        <OrderProcessStyle.ConfirmButton onClick={handleAddMaterial}>Adicionar Item</OrderProcessStyle.ConfirmButton>
+                                        <OrderProcessStyle.ConfirmButton onClick={handleSendMaterials}>Enviar Lista</OrderProcessStyle.ConfirmButton>
+                                    </ButtonContainer>
+                                </div>
                             )}
-                        </OrderStepsStyle.StepContent>
-                    </OrderStepsStyle.Step>
+
+                            {etapa.id === 4 && isActive && etapa.canRequestRevision && (
+                                <ButtonContainer>
+                                    <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>
+                                        Aceitar Orçamento
+                                    </OrderProcessStyle.ConfirmButton>
+                                    <OrderProcessStyle.ConfirmButton onClick={handleRequestRevision}>Solicitar Revisão</OrderProcessStyle.ConfirmButton>
+                                </ButtonContainer>
+                            )}
+
+                            {etapa.id === 5 && isActive && etapa.canEvaluate && (
+                                <div>
+                                    <p>Avalie o prestador (de 1 a 5 estrelas):</p>
+                                    {[1, 2, 3, 4, 5].map((star) => (<span key={star} onClick={() => setAvaliacao(star)} style={{ cursor: "pointer", fontSize: "24px", color: star <= avaliacao ? "#ffc107" : "#e4e5e9" }}>★</span>))}
+                                    <br/>
+                                    <ButtonContainer>
+                                        <OrderProcessStyle.ConfirmButton onClick={handleEvaluation}>Finalizar e Enviar Avaliação</OrderProcessStyle.ConfirmButton>
+                                    </ButtonContainer>
+                                </div>
+                            )}
+
+                            {isCompleted && <OrderProcessStyle.PendingText>✔ Etapa confirmada por ambos</OrderProcessStyle.PendingText>}
+                            {/* ✅ CORREÇÃO APLICADA AQUI */}
+                        </OrderProcessStyle.StepContent>
+                    </OrderProcessStyle.Step>
                 );
             })}
-        </OrderStepsStyle.OrderDetailsWrapper>
+        </OrderProcessStyle.OrderDetailsWrapper>
     );
 };
 
-export default OrderSteps;
+export default OrderProcess;

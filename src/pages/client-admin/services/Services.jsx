@@ -7,7 +7,7 @@ import { getServicesByProvider, getServicesByClient } from "../../../services/ap
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const Services = () => {
-    const { user } = useAuth();
+    const { user, providerData } = useAuth(); // pega também providerData
     const isProvider = user?.userType === 'PROVIDER';
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
@@ -25,25 +25,24 @@ const Services = () => {
                 setLoading(true);
                 setError('');
                 let data;
+
                 if (isProvider) {
-                    data = await getServicesByProvider(user.id);
+                    const companyId = providerData?.company?.id;
+                    if (!companyId) {
+                        setError("Empresa do prestador não encontrada.");
+                        setLoading(false);
+                        return;
+                    }
+
+                    data = await getServicesByProvider(companyId);
+
+                    // Filtra para remover REQUEST_SENT
+                    data = data.filter(service => service.serviceStatus !== 'REQUEST_SENT');
                 } else {
                     data = await getServicesByClient(user.id);
                 }
 
-                let filteredServices;
-                if (isProvider) {
-                    filteredServices = data.filter(service =>
-                        !['REQUEST_SENT', 'REJECTED', 'COMPLETED'].includes(service.serviceStatus)
-                    );
-                } else {
-                    filteredServices = data.filter(service =>
-                        !['REJECTED', 'COMPLETED'].includes(service.serviceStatus)
-                    );
-                }
-
-                setServices(filteredServices);
-
+                setServices(data);
             } catch (err) {
                 setError("Falha ao carregar os serviços.");
                 console.error(err);
@@ -53,8 +52,7 @@ const Services = () => {
         };
 
         fetchServices();
-    }, [user, isProvider]);
-
+    }, [user, providerData, isProvider]);
 
     const handleViewService = (id) => {
         const basePath = isProvider ? "/provider" : "/client";
@@ -63,7 +61,6 @@ const Services = () => {
 
     if (loading) return <ServiceStyle.Container><h2>A carregar serviços...</h2></ServiceStyle.Container>;
     if (error) return <ServiceStyle.Container><h2 style={{color: 'red'}}>{error}</h2></ServiceStyle.Container>;
-
 
     return (
         <ServiceStyle.Container>
@@ -82,12 +79,13 @@ const Services = () => {
                     <option>Todos os Status</option>
                     <option>NEGOTIATING_VISIT</option>
                     <option>IN_PROGRESS</option>
+                    <option>ACCEPTED</option>
                 </ServiceStyle.Select>
                 <ServiceStyle.Button>Filtrar</ServiceStyle.Button>
             </ServiceStyle.FilterArea>
 
             {services.length === 0 && !loading ? (
-                <p>Nenhum serviço em andamento ou solicitado encontrado.</p>
+                <p>Nenhum serviço em andamento encontrado.</p>
             ) : (
                 services.map((service, index) => (
                     <ServiceStyle.Card key={index}>
@@ -101,8 +99,6 @@ const Services = () => {
                             {isProvider ? (
                                 <>Cliente: {service.user?.name || 'Não informado'}</>
                             ) : (
-                                // --- CORREÇÃO APLICADA AQUI ---
-                                // Adiciona uma verificação para evitar o erro se 'service.company' for nulo.
                                 <>Prestador: {service.company?.legalName || 'Aguardando aceitação'}</>
                             )}
                             <br />

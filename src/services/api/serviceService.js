@@ -1,9 +1,8 @@
-// src/services/api/serviceService.js
 import api from './api';
 
 export const getServicesByProvider = async (companyId) => {
     try {
-        const response = await api.get(`/api/services/provider/${companyId}`);
+        const response = await api.get(`/api/services/company/${companyId}`);
         return response.data.data;
     } catch (error) {
         console.error("Erro ao buscar serviços do prestador:", error);
@@ -21,10 +20,6 @@ export const getServicesByClient = async (userId) => {
     }
 };
 
-/**
- * Cria uma nova solicitação de serviço.
- * @param {object} serviceData - Dados da solicitação.
- */
 export const createServiceRequest = async (serviceData) => {
     try {
         const response = await api.post('/api/services', serviceData);

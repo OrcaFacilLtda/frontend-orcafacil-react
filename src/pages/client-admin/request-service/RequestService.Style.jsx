@@ -165,18 +165,11 @@ const ServiceItem = styled.li`
     justify-content: space-between;
 `;
 
-const Avatar = styled.img`
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 16px;
-`;
 
 const ServiceInfo = styled.div`
-    flex: 1;
     display: flex;
     flex-direction: column;
+    line-height: 0.1;
 `;
 
 const ClientName = styled.p`
@@ -247,7 +240,6 @@ export default {
     FilterButton,
     ServiceList,
     ServiceItem,
-    Avatar,
     ServiceInfo,
     ClientName,
     ServiceName,

@@ -7,7 +7,7 @@ import {
     faCogs,
     faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import { AuthContext } from '../../../../context/AuthContext'; // 2. Importe o seu AuthContext
+import { AuthContext } from '../../../../context/AuthContext';
 
 
 const Sidebar = () => {

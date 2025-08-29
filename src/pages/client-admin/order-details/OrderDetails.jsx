@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import OderDetailsStyle from "./OrderDetails.Style.jsx";
 import OrderSteps from "../../../components/section/order-steps/OrderSteps.jsx";
-import { getServiceDetails, acceptServiceRequest, rejectServiceRequest } from "../../../services/api/oderService.js";
+import { getServiceDetails, acceptServiceRequest, rejectServiceRequest } from "../../../services/api/orderService.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const OrderDetails = () => {
@@ -56,7 +56,7 @@ const OrderDetails = () => {
         if (result.isConfirmed) {
             try {
                 const apiCall = isAccepting ? acceptServiceRequest : rejectServiceRequest;
-                const updatedService = await apiCall(id, user.id);
+                const updatedService = await apiCall(id, service.company.id);
                 setService(updatedService);
                 Swal.fire(isAccepting ? "Aceite!" : "Recusado!", `O serviço foi ${isAccepting ? 'aceite' : 'recusado'}.`, "success");
                 navigate('/provider/manage-services');
@@ -92,7 +92,6 @@ const OrderDetails = () => {
                 <OderDetailsStyle.RightPanel>
                     <OderDetailsStyle.ClientCard>
                         <h4>{personType}</h4>
-                        <OderDetailsStyle.ClientImage src={`https://i.pravatar.cc/100?img=${personToShow.id}`} alt={`Foto do ${personType}`} />
                         <OderDetailsStyle.ClientName>{isProvider ? personToShow.name : personToShow.legalName}</OderDetailsStyle.ClientName>
                     </OderDetailsStyle.ClientCard>
 
