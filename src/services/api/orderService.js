@@ -6,6 +6,7 @@ import api from './api';
 export const getServiceDetails = async (serviceId) => {
     try {
         const response = await api.get(`/api/services/${serviceId}`);
+        console.log(response.data.data);
         return response.data.data;
     } catch (error) {
         console.error(`Erro ao buscar detalhes do serviço ${serviceId}:`, error);
