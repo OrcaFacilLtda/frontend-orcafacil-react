@@ -2,26 +2,26 @@ import React, { useState, useEffect } from "react";
 import PerformanceStyle from "./Perfomece.Style.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase, faCheckCircle, faStar } from "@fortawesome/free-solid-svg-icons";
-import { Bar, Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2"; // ✅ Line foi removido
 import { getProviderStats, getProviderChartData } from "../../../services/api/providerService.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 import {
     Chart as ChartJS,
-    CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend
+    CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend // ✅ PointElement e LineElement foram removidos
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+// ✅ Registro de componentes do ChartJS atualizado
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const PerformanceDashboard = () => {
-    const { user } = useAuth();
+    const { user, providerData } = useAuth();
     const [stats, setStats] = useState(null);
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // Garante que só executa se o utilizador for um prestador e estiver carregado
-        if (!user || user.userType !== 'PROVIDER') {
+        if (!user || user.userType !== 'PROVIDER' || !providerData) {
             setLoading(false);
             return;
         }
@@ -29,10 +29,14 @@ const PerformanceDashboard = () => {
         const fetchPerformanceData = async () => {
             try {
                 setLoading(true);
-                // O ID da empresa do prestador é o mesmo que o ID do utilizador
-                const companyId = user.id;
+                const companyId = providerData.company.id;
 
-                // Busca os dados dos cartões e dos gráficos em paralelo
+                if (!companyId) {
+                    setError("ID da empresa não encontrado.");
+                    setLoading(false);
+                    return;
+                }
+
                 const [statsData, charts] = await Promise.all([
                     getProviderStats(companyId),
                     getProviderChartData(companyId)
@@ -50,9 +54,8 @@ const PerformanceDashboard = () => {
         };
 
         fetchPerformanceData();
-    }, [user]);
+    }, [user, providerData]);
 
-    // Configuração dos dados para o gráfico de barras
     const barData = {
         labels: chartData?.servicesByMonthLabels || [],
         datasets: [{
@@ -62,17 +65,7 @@ const PerformanceDashboard = () => {
         }]
     };
 
-    // Configuração dos dados para o gráfico de linhas
-    const lineData = {
-        labels: chartData?.earningsByMonthLabels || [],
-        datasets: [{
-            label: "Ganhos (R$)",
-            data: chartData?.earningsByMonthData || [],
-            borderColor: "#10B981",
-            backgroundColor: "#10B981",
-            fill: false
-        }]
-    };
+    // ✅ Gráfico de linha e 'lineData' foram removidos
 
     if (loading) {
         return <PerformanceStyle.Container>A carregar...</PerformanceStyle.Container>;
@@ -124,13 +117,6 @@ const PerformanceDashboard = () => {
                     <PerformanceStyle.ChartFooter>
                         <strong>Serviços Concluídos por Mês</strong>
                         <p>Histórico dos últimos meses</p>
-                    </PerformanceStyle.ChartFooter>
-                </PerformanceStyle.ChartCard>
-                <PerformanceStyle.ChartCard>
-                    <Line data={lineData} />
-                    <PerformanceStyle.ChartFooter>
-                        <strong>Ganhos Mensais</strong>
-                        <p>Em reais (R$)</p>
                     </PerformanceStyle.ChartFooter>
                 </PerformanceStyle.ChartCard>
             </PerformanceStyle.ChartsContainer>

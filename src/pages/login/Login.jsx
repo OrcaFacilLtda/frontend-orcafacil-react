@@ -36,7 +36,6 @@ const Login = () => {
             console.log("Tentando login com:", email, password);
             await login(email, password);
             console.log("Login efetuado com sucesso");
-            // Redirecionamento feito pelo AuthContext
         } catch (err) {
             console.error("Erro no login:", err);
             const errorMessage =

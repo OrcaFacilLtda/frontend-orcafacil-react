@@ -1,8 +1,6 @@
 import api from './api';
 
-/**
- * Busca todos os usuários cadastrados no sistema.
- */
+
 export const getAllUsers = async () => {
     try {
         const response = await api.get('/api/users');
@@ -13,9 +11,7 @@ export const getAllUsers = async () => {
     }
 };
 
-/**
- * Busca usuários por um status específico (ex: PENDING).
- */
+
 export const getUsersByStatus = async (status) => {
     try {
         const response = await api.get(`/api/users/status/${status.toUpperCase()}`);
@@ -26,13 +22,9 @@ export const getUsersByStatus = async (status) => {
     }
 };
 
-/**
- * Atualiza o status de um usuário (para aprovar ou rejeitar).
- * VERSÃO AJUSTADA E MAIS EFICIENTE
- */
+
 export const updateUserStatus = async (userId, newStatus) => {
     try {
-        // Envia apenas o novo status para o endpoint PATCH, que é mais seguro e eficiente.
         const payload = {
             status: newStatus.toUpperCase()
         };
@@ -45,9 +37,7 @@ export const updateUserStatus = async (userId, newStatus) => {
     }
 };
 
-/**
- * Deleta um usuário do sistema.
- */
+
 export const deleteUser = async (userId) => {
     try {
         await api.delete(`/api/users/${userId}`);
@@ -57,9 +47,7 @@ export const deleteUser = async (userId) => {
     }
 }
 
-/**
- * Busca as estatísticas para os cartões do dashboard do administrador.
- */
+
 export const getAdminDashboardStats = async () => {
     try {
         const response = await api.get('/api/statistics/admin');
@@ -70,9 +58,7 @@ export const getAdminDashboardStats = async () => {
     }
 };
 
-/**
- * Busca os dados para os gráficos do dashboard do administrador.
- */
+
 export const getAdminChartData = async () => {
     try {
         const response = await api.get('/api/statistics/admin/charts');

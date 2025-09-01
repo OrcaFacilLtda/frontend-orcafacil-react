@@ -40,9 +40,8 @@ export const updateProviderProfile = async (providerId, providerData) => {
     }
 };
 
-/**
- * @param {string} email - O email do utilizador.
- */
+
+
 export const getProfileByEmail = async (email) => {
     try {
         const response = await api.get(`/api/users/email/${email}`);

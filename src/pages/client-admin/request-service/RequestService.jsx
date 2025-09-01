@@ -4,12 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faFileAlt, faThumbsUp, faHourglassHalf, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import ServiceRequestModal from "../../../components/ui/modals/service-request-modal/ServiceRequestModal.jsx";
-import { getActiveProviders, getProvidersById, getProviderStatsKPI } from "../../../services/api/providerService.js";
+import { getActiveProviders, getProviderStatsKPI } from "../../../services/api/providerService.js";
 import { getServicesByProvider } from "../../../services/api/serviceService.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const RequestService = () => {
-    const { user } = useAuth();
+    const { user, providerData } = useAuth();
     const navigate = useNavigate();
 
     const isClient = user?.userType === 'CLIENT';
@@ -35,15 +35,20 @@ const RequestService = () => {
                     const providers = await getActiveProviders();
                     setListData(providers);
                 } else {
-                    const dataProvider = await getProvidersById(user.id);
+                    if (providerData && providerData.company) {
+                        const companyId = providerData.company.id;
+                        const [providerServices, providerStats] = await Promise.all([
+                            getServicesByProvider(companyId),
+                            getProviderStatsKPI(companyId)
+                        ]);
 
-                    const providerServices = await getServicesByProvider(dataProvider.company.id);
+                        const requestSentServices = providerServices.filter(s => s.serviceStatus === 'REQUEST_SENT');
 
-                    const requestSentServices = providerServices.filter(s => s.status === 'REQUEST_SENT');
-                    setListData(requestSentServices);
-
-                    const providerStats = await getProviderStatsKPI(dataProvider.company.id);
-                    setStats(providerStats);
+                        setListData(requestSentServices);
+                        setStats(providerStats);
+                    } else if (user.userType === 'PROVIDER') {
+                        setLoading(true);
+                    }
                 }
 
             } catch (err) {
@@ -55,7 +60,7 @@ const RequestService = () => {
         };
 
         fetchData();
-    }, [user, isClient]);
+    }, [user, isClient, providerData]);
 
     const handleOpenModal = (providerId) => {
         setSelectedProviderId(providerId);
@@ -105,7 +110,7 @@ const RequestService = () => {
                         {listData && listData.map((item, i) => (
                             <RequestServiceStyle.ServiceItem key={i}>
                                 <RequestServiceStyle.ServiceInfo>
-                                    <RequestServiceStyle.ClientName>{item.user.name}</RequestServiceStyle.ClientName>
+                                    <RequestServiceStyle.ClientName>{isClient ? item.user.name : item.user?.name || 'Cliente não encontrado'}</RequestServiceStyle.ClientName>
                                     <RequestServiceStyle.ServiceName>{isClient ? item.category.name : item.description}</RequestServiceStyle.ServiceName>
                                     {!isClient && <RequestServiceStyle.ServiceTime>{new Date(item.requestDate).toLocaleDateString()}</RequestServiceStyle.ServiceTime>}
                                 </RequestServiceStyle.ServiceInfo>

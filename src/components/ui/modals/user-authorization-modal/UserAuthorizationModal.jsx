@@ -14,7 +14,7 @@ const UserAuthorizationModal = ({ isOpen, onClose, onSubmit, user }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-        if (!user) return; // evita erro se user ainda não estiver definido
+        if (!user) return;
         onSubmit(user.id, status);
     };
 

@@ -148,7 +148,6 @@ const Register = () => {
                         )}
                     </RegisterStyle.Column>
 
-                    {/* Coluna da Direita */}
                     <RegisterStyle.Column>
                         <RegisterStyle.UserIcon>
                             <FontAwesomeIcon icon={faUser} />

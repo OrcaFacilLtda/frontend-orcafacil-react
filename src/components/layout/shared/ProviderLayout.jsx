@@ -10,7 +10,7 @@ const ProviderLayout = () => {
     const dataUser = {
         name: user.name,
         role: 'provider',
-        avatar: 'https://i.pravatar.cc/100',
+        categoria: 'Prestador',
     };
 
     return (

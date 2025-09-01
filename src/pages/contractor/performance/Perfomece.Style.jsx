@@ -16,22 +16,22 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  margin-bottom: 24px;
+    margin-bottom: 24px;
 
-  h2 {
-    margin: 0 0 4px;
-    font-weight: ${fontWeights.extraBold};
-    font-size: ${fontSizes['2xl']};      
-    color: ${paletteColors.terciaryText}; 
-    font-family: ${fontFamilies.primary};
-  }
+    h2 {
+        margin: 0 0 4px;
+        font-weight: ${fontWeights.extraBold};
+        font-size: ${fontSizes['2xl']};
+        color: ${paletteColors.terciaryText};
+        font-family: ${fontFamilies.primary};
+    }
 
-  p {
-    margin: 0;
-    color: ${paletteColors.dimGray};       
-    font-size: ${fontSizes.base};          
-    font-family: ${fontFamilies.primary};
-  }
+    p {
+        margin: 0;
+        color: ${paletteColors.dimGray};
+        font-size: ${fontSizes.base};
+        font-family: ${fontFamilies.primary};
+    }
 `;
 
 const SummaryCards = styled.div`
@@ -54,21 +54,21 @@ const Card = styled.div`
 `;
 
 const CardInfo = styled.div`
-  span {
-    font-size: ${fontSizes.sm};          
-    font-weight: ${fontWeights.medium};  
-    color: ${paletteColors.dimGray};     
-    font-family: ${fontFamilies.primary};
-  }
+    span {
+        font-size: ${fontSizes.sm};
+        font-weight: ${fontWeights.medium};
+        color: ${paletteColors.dimGray};
+        font-family: ${fontFamilies.primary};
+    }
 
-  strong {
-    font-size: ${fontSizes['3xl']};      
-    font-weight: ${fontWeights.extraBold};
-    color: ${paletteColors.terciaryText}; 
-    display: block;
-    margin-top: 4px;
-    font-family: ${fontFamilies.primary};
-  }
+    strong {
+        font-size: ${fontSizes['3xl']};
+        font-weight: ${fontWeights.extraBold};
+        color: ${paletteColors.terciaryText};
+        display: block;
+        margin-top: 4px;
+        font-family: ${fontFamilies.primary};
+    }
 `;
 
 const IconWrapper = styled.div`
@@ -84,37 +84,38 @@ const IconWrapper = styled.div`
 
 const ChartsContainer = styled.div`
     display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
 `;
 
 const ChartCard = styled.div`
     background: ${paletteColors.white};
     border-radius: 8px;
-    padding: 54px;
-    flex: 1;
-    min-width: 425px;
+    padding: 30px; 
+    width: 100%;
+    max-width: 800px; 
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    background-color: #f3f3f3;  
+    background-color: #f3f3f3;
     box-sizing: border-box;
 `;
 
 const ChartFooter = styled.div`
-  margin-top: 26px;
-  line-height: 0.5;
+    margin-top: 26px;
+    line-height: 0.5;
+    text-align: center; 
 
-  strong {
-    display: block;
-    font-weight: ${fontWeights.bold}; 
-    font-size: ${fontSizes.lg};       
-    font-family: ${fontFamilies.primary};
-  }
+    strong {
+        display: block;
+        font-weight: ${fontWeights.bold};
+        font-size: ${fontSizes.lg};
+        font-family: ${fontFamilies.primary};
+    }
 
-  p {
-    color: ${paletteColors.dimGray};  
-    font-size: ${fontSizes.base};    
-    font-family: ${fontFamilies.primary};
-  }
+    p {
+        color: ${paletteColors.dimGray};
+        font-size: ${fontSizes.base};
+        font-family: ${fontFamilies.primary};
+    }
 `;
 
 export default {
