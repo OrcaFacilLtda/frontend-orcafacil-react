@@ -37,7 +37,7 @@ export const rejectServiceRequest = async (serviceId, providerId) => {
 
 export const confirmVisitStep = async (serviceId, userId) => {
     try {
-        const response = await api.post(`/api/services/${serviceId}/confirm-visit/${userId}`);
+        const response = await api.post(`/api/services/${serviceId}/confirm-visit/${userId}`, {});
         return response.data.data;
     } catch (error) {
         console.error(`Erro ao confirmar visita para o serviço ${serviceId}:`, error);
@@ -47,7 +47,7 @@ export const confirmVisitStep = async (serviceId, userId) => {
 
 export const confirmDatesStep = async (serviceId, userId) => {
     try {
-        const response = await api.post(`/api/services/${serviceId}/confirm-dates/${userId}`);
+        const response = await api.post(`/api/services/${serviceId}/confirm-dates/${userId}`, {});
         return response.data.data;
     } catch (error) {
         console.error(`Erro ao confirmar datas para o serviço ${serviceId}:`, error);
@@ -57,7 +57,7 @@ export const confirmDatesStep = async (serviceId, userId) => {
 
 export const confirmMaterialsStep = async (serviceId, userId) => {
     try {
-        const response = await api.post(`/api/services/${serviceId}/confirm-materials/${userId}`);
+        const response = await api.post(`/api/services/${serviceId}/confirm-materials/${userId}`, {});
         return response.data.data;
     } catch (error) {
         console.error(`Erro ao confirmar materiais para o serviço ${serviceId}:`, error);

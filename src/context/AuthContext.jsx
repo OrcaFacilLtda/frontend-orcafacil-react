@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, {createContext, useState, useEffect, useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api/api.js";
 import { getProviderProfile } from "../services/api/providerService.js";
@@ -83,4 +83,7 @@ export const AuthProvider = ({ children }) => {
             {children}
         </AuthContext.Provider>
     );
+};
+export const useAuth = () => {
+    return useContext(AuthContext);
 };

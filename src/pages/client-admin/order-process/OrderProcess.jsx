@@ -67,33 +67,42 @@ const OrderProcess = () => {
         }
     };
 
-    useEffect(() => {
-        (async () => {
-            await fetchAllData();
-        })();
-    }, [serviceId]);
+    useEffect(() => { fetchAllData(); }, [serviceId]);
 
     const showAlert = (title, text, icon = 'info') => {
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: icon,
-            confirmButtonColor: '#2B4C7E',
-            cancelButtonColor: '#6c757d'
-        });
+        Swal.fire({ title, text, icon, confirmButtonColor: '#2B4C7E', cancelButtonColor: '#6c757d' });
     };
 
     const handleConfirmStep = async (stepName) => {
         if (!user || !service) return;
-        try {
-            await confirmServiceStep(service.id, user.id, stepName);
-            await fetchAllData();
-        } catch (err) { console.error(err); setError("Erro ao confirmar a etapa."); }
+
+        const result = await Swal.fire({
+            title: 'Tem a certeza?',
+            text: "Você está prestes a aceitar esta proposta.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, aceitar!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const updatedService = await confirmServiceStep(service.id, user.id, stepName);
+                setService(updatedService);
+                Swal.fire('Confirmado!', 'A proposta foi aceite.', 'success');
+            } catch (err) {
+                console.error(err);
+                setError("Erro ao confirmar a etapa.");
+                Swal.fire('Erro!', 'Não foi possível confirmar a etapa.', 'error');
+            }
+        }
     };
 
     const handleAddMaterial = () => {
         if (!materialName || materialQuantity <= 0 || materialPrice < 0) {
-            showAlert("Atenção!", "Por favor, preencha todos os campos do material corretamente.", "warning");
+            showAlert("Atenção!", "Preencha todos os campos do material corretamente.", "warning");
             return;
         }
         const newMaterial = { name: materialName, quantity: parseInt(materialQuantity, 10), unitPrice: parseFloat(materialPrice) };
@@ -108,13 +117,7 @@ const OrderProcess = () => {
         }
         try {
             await sendMaterialList(service.id, materials);
-            Swal.fire({
-                title: 'Sucesso!',
-                text: 'A lista de materiais foi enviada para o cliente.',
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            Swal.fire({ title: 'Sucesso!', text: 'Lista de materiais enviada.', icon: 'success', timer: 2000, showConfirmButton: false });
             setMaterials([]);
             await fetchAllData();
         } catch (err) { console.error(err); setError("Erro ao enviar a lista de materiais."); }
@@ -122,66 +125,57 @@ const OrderProcess = () => {
 
     const handleRequestRevision = async () => {
         if (!user || !service) return;
-        try {
-            await requestBudgetRevision(service.id, user.id);
-            await fetchAllData();
-        } catch (err) { console.error(err); setError("Erro ao solicitar a revisão."); }
+        try { await requestBudgetRevision(service.id, user.id); await fetchAllData(); }
+        catch (err) { console.error(err); setError("Erro ao solicitar a revisão."); }
     };
 
     const handleEvaluation = async () => {
-        if (avaliacao === 0) {
-            showAlert("Atenção!", "Por favor, selecione de 1 a 5 estrelas para a avaliação.", "warning");
-            return;
-        }
+        if (avaliacao === 0) { showAlert("Atenção!", "Selecione de 1 a 5 estrelas.", "warning"); return; }
         if (!user || !service) return;
-        try {
-            await submitEvaluation(service.id, user.id, avaliacao);
-            await fetchAllData();
-        } catch (err) { console.error(err); setError("Erro ao enviar avaliação."); }
+        try { await submitEvaluation(service.id, user.id, avaliacao); await fetchAllData(); }
+        catch (err) { console.error(err); setError("Erro ao enviar avaliação."); }
     };
 
     const handleSendVisitProposal = async () => {
-        if (!visitDate) {
-            showAlert("Atenção!", "Por favor, selecione uma data para a visita.", "warning");
-            return;
-        }
-        // Converte a string "YYYY-MM-DD" para um objeto Date no fuso horário local
-        const parts = visitDate.split('-');
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Mês em JS é 0-indexado
-        const day = parseInt(parts[2], 10);
-        const dateToSend = new Date(year, month, day);
-
+        if (!visitDate) { showAlert("Atenção!", "Selecione uma data para a visita.", "warning"); return; }
+        const [year, month, day] = visitDate.split('-').map(Number);
+        const dateToSend = new Date(year, month - 1, day, 12, 0, 0);
         const proposerRole = isProvider ? "PROVIDER" : "CLIENT";
-        try {
-            await sendVisitProposal(service.id, dateToSend, proposerRole);
-            setVisitDate('');
-            await fetchAllData();
-        } catch (err) {
-            console.error("Erro ao enviar proposta de visita:", err);
-            showAlert("Erro!", "Não foi possível enviar a proposta. Verifique se a data é futura.", "error");
-        }
+        try { await sendVisitProposal(service.id, dateToSend, proposerRole); setVisitDate(''); await fetchAllData(); }
+        catch (err) { console.error(err); showAlert("Erro!", "Não foi possível enviar a proposta.", "error"); }
     };
 
     const handleSendDateProposals = async () => {
-        if (!startDate || !endDate) {
-            showAlert("Atenção!", "Por favor, selecione a data de início e de fim.", "warning");
-            return;
-        }
+        if (!startDate || !endDate) { showAlert("Atenção!", "Selecione datas de início e fim.", "warning"); return; }
+        const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+        const startDateToSend = new Date(startYear, startMonth - 1, startDay, 12, 0, 0);
+        const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+        const endDateToSend = new Date(endYear, endMonth - 1, endDay, 12, 0, 0);
         const proposerRole = isProvider ? "PROVIDER" : "CLIENT";
-        await sendDateProposal(service.id, startDate, endDate, proposerRole);
-        await fetchAllData();
+        try { await sendDateProposal(service.id, startDateToSend, endDateToSend, proposerRole); setStartDate(''); setEndDate(''); await fetchAllData(); }
+        catch(err){console.error(err);}
     };
 
     if (loading) return <div>Carregando...</div>;
     if (error) return <div style={{ color: "red" }}>{error}</div>;
     if (!service) return <div>Serviço não encontrado.</div>;
 
+    if (!isProvider && service.serviceStatus === 'REQUEST_SENT') {
+        return (
+            <OrderProcessStyle.OrderDetailsWrapper>
+                <h3>Etapas do Serviço</h3>
+                <OrderProcessStyle.PendingText>
+                    Aguardando a resposta do prestador.
+                </OrderProcessStyle.PendingText>
+            </OrderProcessStyle.OrderDetailsWrapper>
+        );
+    }
+
     const etapas = [
         { id: 1, name: "start", title: "Solicitação Enviada", confirmed: true },
-        { id: 2, name: "visit", title: "Visita Técnica", confirmed: service.clientVisitConfirmed && service.providerVisitConfirmed, lastProposal: visitProposals.length > 0 ? visitProposals[visitProposals.length - 1] : null },
-        { id: 3, name: "dates", title: "Período do Serviço", confirmed: service.clientDatesConfirmed && service.providerDatesConfirmed, lastProposal: dateProposals.length > 0 ? dateProposals[dateProposals.length - 1] : null },
-        { id: 4, name: "materials", title: "Orçamento e Materiais", confirmed: service.clientMaterialsConfirmed && service.providerMaterialsConfirmed, canSubmitMaterials: isProvider, canRequestRevision: !isProvider },
+        { id: 2, name: "visit", title: "Visita Técnica", confirmed: service.clientVisitConfirmed || service.providerVisitConfirmed, lastProposal: visitProposals.length > 0 ? visitProposals[visitProposals.length - 1] : null },
+        { id: 3, name: "dates", title: "Período do Serviço", confirmed: service.clientDatesConfirmed || service.providerDatesConfirmed, lastProposal: dateProposals.length > 0 ? dateProposals[dateProposals.length - 1] : null },
+        { id: 4, name: "materials", title: "Orçamento e Materiais", confirmed: isProvider ? service.providerMaterialsConfirmed : service.clientMaterialsConfirmed, canSubmitMaterials: isProvider, canRequestRevision: !isProvider },
         { id: 5, name: "finalize", title: "Finalização", confirmed: service.budgetFinalized, canEvaluate: !isProvider }
     ];
 
@@ -205,85 +199,103 @@ const OrderProcess = () => {
                         <OrderProcessStyle.StepContent>
                             <OrderProcessStyle.StepTitle>{etapa.title}</OrderProcessStyle.StepTitle>
 
-                            {/* ================================================================== */}
-                            {/* ETAPA 2: VISITA TÉCNICA - LÓGICA DE NEGOCIAÇÃO COMPLETA           */}
-                            {/* ================================================================== */}
+                            {/* VISITA */}
                             {etapa.id === 2 && isActive && (
                                 <div>
-                                    {/* CASO 1: Nenhuma proposta foi feita ainda. */}
-                                    {!etapa.lastProposal && (
-                                        <>
-                                            {isProvider ? (
+                                    {!etapa.lastProposal && (isProvider ?
+                                            <div>
+                                                <p>Proponha uma data para a visita técnica:</p>
+                                                <input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} />
+                                                <ButtonContainer>
+                                                    <OrderProcessStyle.ConfirmButton onClick={handleSendVisitProposal}>Propor Data</OrderProcessStyle.ConfirmButton>
+                                                </ButtonContainer>
+                                            </div>
+                                            :
+                                            <OrderProcessStyle.PendingText>
+                                                Aguardando a proposta de data do prestador.
+                                            </OrderProcessStyle.PendingText>
+                                    )}
+                                    {etapa.lastProposal && (
+                                        lastProposer === user.userType ?
+                                            <OrderProcessStyle.PendingText>
+                                                Sua proposta ({formatDate(etapa.lastProposal.visitDate)}) foi enviada. Aguardando resposta.
+                                            </OrderProcessStyle.PendingText>
+                                            :
+                                            <div>
+                                                <OrderProcessStyle.PendingText style={{ fontWeight: 'bold', color: '#2B4C7E', marginBottom: '1rem' }}>
+                                                    {`O ${lastProposer === 'PROVIDER' ? 'prestador' : 'cliente'} propôs a data: `}
+                                                    <strong>{formatDate(etapa.lastProposal.visitDate)}</strong>
+                                                </OrderProcessStyle.PendingText>
+                                                <ButtonContainer>
+                                                    <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>Aceitar Proposta</OrderProcessStyle.ConfirmButton>
+                                                </ButtonContainer>
+                                                <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
                                                 <div>
-                                                    <p>Proponha uma data para a visita técnica:</p>
+                                                    <p>Não concorda? Envie contraproposta:</p>
                                                     <input type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} />
                                                     <ButtonContainer>
-                                                        <OrderProcessStyle.ConfirmButton onClick={handleSendVisitProposal}>
-                                                            Propor Data
-                                                        </OrderProcessStyle.ConfirmButton>
+                                                        <OrderProcessStyle.ConfirmButton onClick={handleSendVisitProposal}>Enviar Contraproposta</OrderProcessStyle.ConfirmButton>
                                                     </ButtonContainer>
                                                 </div>
-                                            ) : (
-                                                <OrderProcessStyle.PendingText>
-                                                    Aguardando a proposta de data para visita do prestador.
-                                                </OrderProcessStyle.PendingText>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {/* CASO 2: Já existe uma proposta na mesa. */}
-                                    {etapa.lastProposal && (
-                                        <>
-                                            {/* Subcaso 2.1: A última proposta foi feita por MIM. Agora eu espero. */}
-                                            {lastProposer === user.userType ? (
-                                                <OrderProcessStyle.PendingText>
-                                                    Sua proposta para o dia <strong>{formatDate(etapa.lastProposal.date)}</strong> foi enviada. Aguardando a resposta do {isProvider ? 'cliente' : 'prestador'}.
-                                                </OrderProcessStyle.PendingText>
-                                            ) : (
-                                                /* Subcaso 2.2: A última proposta foi feita pelo OUTRO. Agora eu respondo. */
-                                                <div>
-                                                    <OrderProcessStyle.PendingText style={{ fontWeight: 'bold', color: '#2B4C7E', marginBottom: '1rem' }}>
-                                                        O {lastProposer === 'PROVIDER' ? 'prestador' : 'cliente'} propôs a data: <strong>{formatDate(etapa.lastProposal.date)}</strong>
-                                                    </OrderProcessStyle.PendingText>
-
-                                                    <ButtonContainer>
-                                                        <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>
-                                                            Aceitar Proposta
-                                                        </OrderProcessStyle.ConfirmButton>
-                                                    </ButtonContainer>
-
-                                                    <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
-
-                                                    <div>
-                                                        <p>Não pode nesta data? Envie uma contraproposta:</p>
-                                                        <input type="date" value={visitDate} onChange={(e) => setVisitDate(e.target.value)} />
-                                                        <ButtonContainer>
-                                                            <OrderProcessStyle.ConfirmButton onClick={handleSendVisitProposal}>
-                                                                Enviar Contraproposta
-                                                            </OrderProcessStyle.ConfirmButton>
-                                                        </ButtonContainer>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </>
+                                            </div>
                                     )}
                                 </div>
                             )}
 
-                            {/* ================================================================== */}
-                            {/* LÓGICA DAS OUTRAS ETAPAS (MANTIDA COMO ESTAVA)                      */}
-                            {/* ================================================================== */}
-
-                            {/* ETAPA 3 */}
+                            {/* DATAS */}
                             {etapa.id === 3 && isActive && (
                                 <div>
-                                    {/* A lógica para a Etapa 3 pode seguir o mesmo padrão de negociação, se desejado. */}
-                                    <p>{etapa.lastProposal ? 'Proposta de período recebida.' : 'Aguardando proposta de período.'}</p>
-                                    {/* ... (Interface de negociação de datas aqui) ... */}
+                                    {!etapa.lastProposal && (isProvider ?
+                                            <div>
+                                                <p>Proponha período do serviço:</p>
+                                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <label>De:</label>
+                                                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                                                    <label>Até:</label>
+                                                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                                                </div>
+                                                <ButtonContainer>
+                                                    <OrderProcessStyle.ConfirmButton onClick={handleSendDateProposals}>Propor Período</OrderProcessStyle.ConfirmButton>
+                                                </ButtonContainer>
+                                            </div>
+                                            :
+                                            <OrderProcessStyle.PendingText>
+                                                Aguardando proposta do prestador.
+                                            </OrderProcessStyle.PendingText>
+                                    )}
+                                    {etapa.lastProposal && (
+                                        lastProposer === user.userType ?
+                                            <OrderProcessStyle.PendingText>
+                                                Sua proposta ({formatDate(etapa.lastProposal.startDate)} a {formatDate(etapa.lastProposal.endDate)}) foi enviada. Aguardando resposta.
+                                            </OrderProcessStyle.PendingText>
+                                            :
+                                            <div>
+                                                <OrderProcessStyle.PendingText style={{ fontWeight: 'bold', color: '#2B4C7E', marginBottom: '1rem' }}>
+                                                    {`O ${lastProposer === 'PROVIDER' ? 'prestador' : 'cliente'} propôs: `}
+                                                    <strong>{formatDate(etapa.lastProposal.startDate)}</strong> a <strong>{formatDate(etapa.lastProposal.endDate)}</strong>
+                                                </OrderProcessStyle.PendingText>
+                                                <ButtonContainer>
+                                                    <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>Aceitar Proposta</OrderProcessStyle.ConfirmButton>
+                                                </ButtonContainer>
+                                                <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
+                                                <div>
+                                                    <p>Não concorda? Envie contraproposta:</p>
+                                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                        <label>De:</label>
+                                                        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                                                        <label>Até:</label>
+                                                        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                                                    </div>
+                                                    <ButtonContainer>
+                                                        <OrderProcessStyle.ConfirmButton onClick={handleSendDateProposals}>Enviar Contraproposta</OrderProcessStyle.ConfirmButton>
+                                                    </ButtonContainer>
+                                                </div>
+                                            </div>
+                                    )}
                                 </div>
                             )}
 
-                            {/* ETAPA 4 */}
+                            {/* MATERIAIS */}
                             {etapa.id === 4 && isActive && isProvider && (
                                 <OrderProcessStyle.MaterialForm>
                                     <p>Adicionar materiais:</p>
@@ -315,27 +327,26 @@ const OrderProcess = () => {
                                                 </ul>
                                             </OrderProcessStyle.MaterialList>
                                             <ButtonContainer>
-                                                <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>
-                                                    Aceitar Orçamento
-                                                </OrderProcessStyle.ConfirmButton>
-                                                <OrderProcessStyle.ConfirmButton onClick={handleRequestRevision}>
-                                                    Solicitar Revisão
-                                                </OrderProcessStyle.ConfirmButton>
+                                                {/* Usuário só aceita ele mesmo */}
+                                                <OrderProcessStyle.ConfirmButton onClick={() => handleConfirmStep(etapa.name)}>Aceitar Orçamento</OrderProcessStyle.ConfirmButton>
+                                                <OrderProcessStyle.ConfirmButton onClick={handleRequestRevision}>Solicitar Revisão</OrderProcessStyle.ConfirmButton>
                                             </ButtonContainer>
                                         </>
                                     ) : (
                                         <OrderProcessStyle.PendingText style={{ color: '#ff9800' }}>
-                                            Aguardando o envio da lista de materiais pelo prestador.
+                                            Aguardando envio da lista de materiais pelo prestador.
                                         </OrderProcessStyle.PendingText>
                                     )}
                                 </>
                             )}
 
-                            {/* ETAPA 5 */}
+                            {/* FINALIZAÇÃO */}
                             {etapa.id === 5 && isActive && !isProvider && (
                                 <div>
-                                    <p>Avalie o prestador (de 1 a 5 estrelas):</p>
-                                    {[1, 2, 3, 4, 5].map((star) => (<span key={star} onClick={() => setAvaliacao(star)} style={{ cursor: "pointer", fontSize: "24px", color: star <= avaliacao ? "#ffc107" : "#e4e5e9" }}>★</span>))}
+                                    <p>Avalie o prestador (1 a 5 estrelas):</p>
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <span key={star} onClick={() => setAvaliacao(star)} style={{ cursor: "pointer", fontSize: "24px", color: star <= avaliacao ? "#ffc107" : "#e4e5e9" }}>★</span>
+                                    ))}
                                     <br />
                                     <ButtonContainer>
                                         <OrderProcessStyle.ConfirmButton onClick={handleEvaluation}>Finalizar e Enviar Avaliação</OrderProcessStyle.ConfirmButton>
@@ -343,7 +354,7 @@ const OrderProcess = () => {
                                 </div>
                             )}
 
-                            {isCompleted && <OrderProcessStyle.PendingText>✔ Etapa confirmada por ambos</OrderProcessStyle.PendingText>}
+                            {isCompleted && <OrderProcessStyle.PendingText>✔ Etapa confirmada</OrderProcessStyle.PendingText>}
                         </OrderProcessStyle.StepContent>
                     </OrderProcessStyle.Step>
                 );
