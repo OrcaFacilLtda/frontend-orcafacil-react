@@ -167,6 +167,28 @@ const ActionButton = styled.button`
     }
 `;
 
+
+
+const ServicesList = styled.div`
+    max-height: 60vh; 
+    overflow-y: auto;
+    padding-right: 8px; 
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+`;
 export default {
     Container,
     Header,
@@ -181,4 +203,5 @@ export default {
     Info,
     Description,
     ActionButton,
+    ServicesList,
 };

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import Swal from 'sweetalert2';
 import CategoryStyle from './EditCategoryModal.Style.jsx';
+import { validateRequiredFields } from '../../../../utils/categoryValidation.js';
 
 const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
     const [formData, setFormData] = useState({ id: '', name: '', description: '' });
@@ -23,6 +25,18 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const { isValid, missingFields } = validateRequiredFields(formData, ['name', 'description']);
+
+        if (!isValid) {
+            Swal.fire(
+                'Atenção',
+                `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
+                'warning'
+            );
+            return;
+        }
+
         onSubmit(formData);
     };
 
@@ -61,6 +75,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onSubmit }) => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 placeholder="Descrição"
+                                required
                             />
                         </CategoryStyle.FormControl>
                     </CategoryStyle.FormRow>

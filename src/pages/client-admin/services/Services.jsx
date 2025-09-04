@@ -6,13 +6,27 @@ import { useNavigate } from "react-router-dom";
 import { getServicesByProvider, getServicesByClient } from "../../../services/api/serviceService.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 
+const STATUS_MAP = {
+    REQUEST_SENT: "Solicitação enviada",
+    REJECTED: "Rejeitado",
+    NEGOTIATING_VISIT: "Negociando visita",
+    VISIT_CONFIRMED: "Visita confirmada",
+    NEGOTIATING_DATES: "Negociando datas",
+    BUDGET_IN_NEGOTIATION: "Orçamento em negociação",
+    IN_PROGRESS: "Em andamento",
+    COMPLETED: "Concluído"
+};
+
 const Services = () => {
-    const { user, providerData } = useAuth(); // pega também providerData
+    const { user, providerData } = useAuth();
     const isProvider = user?.userType === 'PROVIDER';
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
+    const [filteredServices, setFilteredServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
 
     useEffect(() => {
         if (!user) {
@@ -35,14 +49,12 @@ const Services = () => {
                     }
 
                     data = await getServicesByProvider(companyId);
-
-                    // Filtra para remover REQUEST_SENT
-                    data = data.filter(service => service.serviceStatus !== 'REQUEST_SENT');
                 } else {
                     data = await getServicesByClient(user.id);
                 }
 
                 setServices(data);
+                setFilteredServices(data);
             } catch (err) {
                 setError("Falha ao carregar os serviços.");
                 console.error(err);
@@ -53,6 +65,26 @@ const Services = () => {
 
         fetchServices();
     }, [user, providerData, isProvider]);
+
+    const handleFilter = () => {
+        let temp = [...services];
+
+        // Filtro por busca
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.toLowerCase();
+            temp = temp.filter(service => {
+                if (isProvider) return service.user?.name?.toLowerCase().includes(term);
+                return service.company?.legalName?.toLowerCase().includes(term);
+            });
+        }
+
+        // Filtro por status
+        if (statusFilter !== '') {
+            temp = temp.filter(service => service.serviceStatus === statusFilter);
+        }
+
+        setFilteredServices(temp);
+    };
 
     const handleViewService = (id) => {
         const basePath = isProvider ? "/provider" : "/client";
@@ -72,45 +104,56 @@ const Services = () => {
             <ServiceStyle.FilterArea>
                 <ServiceStyle.SearchInputWrapper>
                     <FontAwesomeIcon icon={faSearch} />
-                    <input type="text" placeholder="Pesquisar por nome do cliente/prestador" />
+                    <input
+                        type="text"
+                        placeholder="Pesquisar por nome do cliente/prestador"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </ServiceStyle.SearchInputWrapper>
 
-                <ServiceStyle.Select>
-                    <option>Todos os Status</option>
-                    <option>NEGOTIATING_VISIT</option>
-                    <option>IN_PROGRESS</option>
-                    <option>ACCEPTED</option>
+                <ServiceStyle.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="">Todos os Status</option>
+                    {Object.keys(STATUS_MAP).map(status => (
+                        <option key={status} value={status}>{STATUS_MAP[status]}</option>
+                    ))}
                 </ServiceStyle.Select>
-                <ServiceStyle.Button>Filtrar</ServiceStyle.Button>
+
+                <ServiceStyle.Button onClick={handleFilter}>Filtrar</ServiceStyle.Button>
             </ServiceStyle.FilterArea>
 
-            {services.length === 0 && !loading ? (
-                <p>Nenhum serviço em andamento encontrado.</p>
-            ) : (
-                services.map((service, index) => (
-                    <ServiceStyle.Card key={index}>
-                        <ServiceStyle.TitleRow>
-                            <h3>{service.description.substring(0, 50)}...</h3>
-                            <ServiceStyle.Status status={service.serviceStatus}>
-                                {service.serviceStatus.replace(/_/g, ' ')}
-                            </ServiceStyle.Status>
-                        </ServiceStyle.TitleRow>
-                        <ServiceStyle.Info>
-                            {isProvider ? (
-                                <>Cliente: {service.user?.name || 'Não informado'}</>
-                            ) : (
-                                <>Prestador: {service.company?.legalName || 'Aguardando aceitação'}</>
-                            )}
-                            <br />
-                            Solicitado em: {new Date(service.requestDate).toLocaleDateString()}
-                        </ServiceStyle.Info>
-                        <ServiceStyle.Description>{service.description}</ServiceStyle.Description>
-                        <ServiceStyle.ActionButton onClick={() => handleViewService(service.id)}>
-                            Ver situação
-                        </ServiceStyle.ActionButton>
-                    </ServiceStyle.Card>
-                ))
-            )}
+            <ServiceStyle.ServicesList>
+                {filteredServices.length === 0 ? (
+                    <p>Nenhum serviço em andamento encontrado.</p>
+                ) : (
+                    filteredServices.map((service, index) => (
+                        <ServiceStyle.Card key={index}>
+                            <ServiceStyle.TitleRow>
+                                <h3>{service.description.substring(0, 50)}...</h3>
+                                <ServiceStyle.Status status={STATUS_MAP[service.serviceStatus]}>
+                                    {STATUS_MAP[service.serviceStatus] || service.serviceStatus}
+                                </ServiceStyle.Status>
+                            </ServiceStyle.TitleRow>
+                            <ServiceStyle.Info>
+                                {isProvider ? (
+                                    <>Cliente: {service.user?.name || 'Não informado'}</>
+                                ) : (
+                                    <>Prestador: {service.company?.legalName || 'Aguardando aceitação'}</>
+                                )}
+                                <br />
+                                Solicitado em: {new Date(service.requestDate).toLocaleDateString()}
+                            </ServiceStyle.Info>
+                            <ServiceStyle.Description>{service.description}</ServiceStyle.Description>
+                            <ServiceStyle.ActionButton onClick={() => handleViewService(service.id)}>
+                                Ver situação
+                            </ServiceStyle.ActionButton>
+                        </ServiceStyle.Card>
+                    ))
+                )}
+            </ServiceStyle.ServicesList>
         </ServiceStyle.Container>
     );
 };

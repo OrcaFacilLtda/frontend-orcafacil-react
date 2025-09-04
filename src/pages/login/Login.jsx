@@ -10,6 +10,8 @@ import { useAuth } from "../../hooks/useAuth.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
+import { validateLoginForm } from "../../utils/loginValidation.js";
+
 const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -22,10 +24,11 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        if (!email || !password) {
+        const validationError = validateLoginForm({ email, password });
+        if (validationError) {
             Swal.fire({
                 title: "Atenção",
-                text: "Por favor, preencha o email e a senha.",
+                text: validationError,
                 icon: "warning",
                 confirmButtonText: "Ok",
             });

@@ -4,8 +4,8 @@ import Swal from 'sweetalert2';
 import RegisterStyle from './Register.Style';
 import api from '../../services/api/api.js';
 import RegisterLoginInput from '../../components/ui/register-login-input/RegisterLoginInput.jsx';
-
-// Importando Font Awesome
+import { validateRegisterForm } from "../../utils/formValidation.js";
+import { maskCPF, maskCNPJ, maskPhone, maskCEP, unmask } from '../../utils/maksUtils.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -38,30 +38,57 @@ const Register = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+
+        let maskedValue = value;
+
+        if (name === 'cpf') maskedValue = maskCPF(value).slice(0, 14);
+        if (name === 'cnpj') maskedValue = maskCNPJ(value).slice(0, 18);
+        if (name === 'phone') maskedValue = maskPhone(value).slice(0, 15);
+        if (name === 'zipCode') maskedValue = maskCEP(value).slice(0, 9);
+
+        setFormData(prev => ({ ...prev, [name]: maskedValue }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
+        const validationError = validateRegisterForm(formData, userType);
+        if (validationError) {
+            Swal.fire({
+                title: 'Erro de Validação',
+                text: validationError,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+
+        const payloadBase = {
+            ...formData,
+            cpf: unmask(formData.cpf),
+            cnpj: unmask(formData.cnpj),
+            phone: unmask(formData.phone),
+            zipCode: unmask(formData.zipCode)
+        };
+
         const userRequestPayload = {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            cpf: formData.cpf,
-            phone: formData.phone,
-            birthDate: formData.birthDate,
+            name: payloadBase.name,
+            email: payloadBase.email,
+            password: payloadBase.password,
+            cpf: payloadBase.cpf,
+            phone: payloadBase.phone,
+            birthDate: payloadBase.birthDate,
             userType: userType,
             status: 'PENDING',
             address: {
-                zipCode: formData.zipCode,
-                street: formData.street,
-                number: formData.number,
-                neighborhood: formData.neighborhood,
-                city: formData.city,
-                state: formData.state,
-                complement: formData.complement,
+                zipCode: payloadBase.zipCode,
+                street: payloadBase.street,
+                number: payloadBase.number,
+                neighborhood: payloadBase.neighborhood,
+                city: payloadBase.city,
+                state: payloadBase.state,
+                complement: payloadBase.complement,
             }
         };
 
@@ -72,11 +99,11 @@ const Register = () => {
                 const providerPayload = {
                     userRequest: userRequestPayload,
                     companyRequest: {
-                        legalName: formData.legalName,
-                        cnpj: formData.cnpj,
+                        legalName: payloadBase.legalName,
+                        cnpj: payloadBase.cnpj,
                         address: userRequestPayload.address
                     },
-                    categoryId: parseInt(formData.categoryId, 10)
+                    categoryId: parseInt(payloadBase.categoryId, 10)
                 };
                 await api.post('/api/providers', providerPayload);
             }
@@ -105,33 +132,25 @@ const Register = () => {
         <RegisterStyle.Wrapper>
             <RegisterStyle.Container>
                 <RegisterStyle.BackButton onClick={() => navigate('/')}>
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                    Voltar
+                    <FontAwesomeIcon icon={faArrowLeft} /> Voltar
                 </RegisterStyle.BackButton>
 
                 <RegisterStyle.Form as="form" onSubmit={handleSubmit}>
-                    {/* Coluna da Esquerda */}
                     <RegisterStyle.Column>
                         <RegisterStyle.Toggle>
                             <RegisterStyle.Button
                                 type="button"
                                 active={userType === 'PROVIDER'}
                                 onClick={() => setUserType('PROVIDER')}
-                            >
-                                PRESTADOR
-                            </RegisterStyle.Button>
+                            >PRESTADOR</RegisterStyle.Button>
                             <RegisterStyle.Button
                                 type="button"
                                 active={userType === 'CLIENT'}
                                 onClick={() => setUserType('CLIENT')}
-                            >
-                                CLIENTE
-                            </RegisterStyle.Button>
+                            >CLIENTE</RegisterStyle.Button>
                         </RegisterStyle.Toggle>
 
-                        <RegisterStyle.Title>
-                            COMO DESEJA SE CADASTRAR?
-                        </RegisterStyle.Title>
+                        <RegisterStyle.Title>COMO DESEJA SE CADASTRAR?</RegisterStyle.Title>
 
                         <RegisterLoginInput label="NOME COMPLETO" name="name" value={formData.name} onChange={handleChange} required />
                         <RegisterLoginInput label="EMAIL" type="email" name="email" value={formData.email} onChange={handleChange} required />
@@ -149,9 +168,7 @@ const Register = () => {
                     </RegisterStyle.Column>
 
                     <RegisterStyle.Column>
-                        <RegisterStyle.UserIcon>
-                            <FontAwesomeIcon icon={faUser} />
-                        </RegisterStyle.UserIcon>
+                        <RegisterStyle.UserIcon><FontAwesomeIcon icon={faUser} /></RegisterStyle.UserIcon>
 
                         <RegisterLoginInput label="RUA" name="street" value={formData.street} onChange={handleChange} required />
                         <RegisterLoginInput label="BAIRRO" name="neighborhood" value={formData.neighborhood} onChange={handleChange} required />
@@ -159,84 +176,25 @@ const Register = () => {
                         <RegisterLoginInput label="CIDADE" name="city" value={formData.city} onChange={handleChange} required />
 
                         <label htmlFor="state">ESTADO:</label>
-                        <select
-                            name="state"
-                            id="state"
-                            value={formData.state}
-                            onChange={handleChange}
-                            required
-                            style={{
-                                width: '105%',
-                                padding: '0.5rem',
-                                border: '1.5px solid #3b82f6',
-                                borderRadius: '8px',
-                                fontSize: '1rem',
-                                marginTop: '0.5rem',
-                                marginBottom: '0.5rem'
-                            }}
-                        >
+                        <select name="state" id="state" value={formData.state} onChange={handleChange} required style={{ width: '105%', padding: '0.5rem', border: '1.5px solid #3b82f6', borderRadius: '8px', fontSize: '1rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                             <option value="">Selecione um Estado</option>
-                            <option value="AC">Acre</option>
-                            <option value="AL">Alagoas</option>
-                            <option value="AP">Amapá</option>
-                            <option value="AM">Amazonas</option>
-                            <option value="BA">Bahia</option>
-                            <option value="CE">Ceará</option>
-                            <option value="DF">Distrito Federal</option>
-                            <option value="ES">Espírito Santo</option>
-                            <option value="GO">Goiás</option>
-                            <option value="MA">Maranhão</option>
-                            <option value="MT">Mato Grosso</option>
-                            <option value="MS">Mato Grosso do Sul</option>
-                            <option value="MG">Minas Gerais</option>
-                            <option value="PA">Pará</option>
-                            <option value="PB">Paraíba</option>
-                            <option value="PR">Paraná</option>
-                            <option value="PE">Pernambuco</option>
-                            <option value="PI">Piauí</option>
-                            <option value="RJ">Rio de Janeiro</option>
-                            <option value="RN">Rio Grande do Norte</option>
-                            <option value="RS">Rio Grande do Sul</option>
-                            <option value="RO">Rondônia</option>
-                            <option value="RR">Roraima</option>
-                            <option value="SC">Santa Catarina</option>
-                            <option value="SP">São Paulo</option>
-                            <option value="SE">Sergipe</option>
-                            <option value="TO">Tocantins</option>
+                            {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(state => (
+                                <option key={state} value={state}>{state}</option>
+                            ))}
                         </select>
 
                         <RegisterLoginInput label="SENHA" type="password" name="password" value={formData.password} onChange={handleChange} required />
 
                         {userType === 'PROVIDER' && (
-                            <select
-                                name="categoryId"
-                                value={formData.categoryId}
-                                onChange={handleChange}
-                                required
-                                style={{
-                                    width: '105%',
-                                    padding: '0.5rem',
-                                    border: '1.5px solid #3b82f6',
-                                    borderRadius: '8px',
-                                    fontSize: '1rem',
-                                    marginTop: '0.5rem',
-                                    marginBottom: "0.5rem"
-                                }}
-                            >
+                            <select name="categoryId" value={formData.categoryId} onChange={handleChange} required style={{ width: '105%', padding: '0.5rem', border: '1.5px solid #3b82f6', borderRadius: '8px', fontSize: '1rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                                 <option value="">Selecione uma Categoria</option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
+                                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                             </select>
                         )}
 
-                        <RegisterStyle.RegisterButton type="submit">
-                            Cadastrar
-                        </RegisterStyle.RegisterButton>
+                        <RegisterStyle.RegisterButton type="submit">Cadastrar</RegisterStyle.RegisterButton>
 
-                        <RegisterStyle.LoginLink>
-                            Já possui conta? <Link to="/login">Logue-se</Link>
-                        </RegisterStyle.LoginLink>
+                        <RegisterStyle.LoginLink>Já possui conta? <Link to="/login">Logue-se</Link></RegisterStyle.LoginLink>
                     </RegisterStyle.Column>
                 </RegisterStyle.Form>
             </RegisterStyle.Container>

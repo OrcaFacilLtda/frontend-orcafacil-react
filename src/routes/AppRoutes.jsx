@@ -27,7 +27,6 @@ const AppRoutes = () => (
     <Routes>
         <Route path="/" element={<LandingPage/>}/>
 
-        {/* Public login and register */}
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
 
@@ -37,7 +36,6 @@ const AppRoutes = () => (
                 <AdminLayout/>
             }
         >
-            {/* Rotas filhas do admin */}
             <Route index element={<Navigate to="dashboard" replace/>}/>
             <Route path="dashboard" element={<Dashboard/>}/>
             <Route path="users" element={<Users/>}/>
@@ -50,7 +48,6 @@ const AppRoutes = () => (
             path="/client"
             element={<ClientLayout/>}
         >
-            {/* Rotas filhas do client-admin */}
             <Route index element={<Navigate to="services" replace/>}/>
             <Route path="services" element={<RequestService isClient={true}/>}/>
             <Route path="services/:id" element={<OrderDetails isProvider={false}/>}/>
@@ -64,7 +61,6 @@ const AppRoutes = () => (
             path="/provider"
             element={<ProviderLayout/>}
         >
-            {/* Rotas filhas do provider */}
             <Route index element={<Navigate to="manage-services" replace/>}/>
             <Route path="manage-services" element={<Services/>}/>
             <Route path="manage-services/:id" element={<OrderProcess isProvider={true}/>}/>

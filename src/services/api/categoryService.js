@@ -13,7 +13,6 @@ export const getAllCategories = async () => {
 
 export const createCategory = async (categoryData) => {
     try {
-        // O backend espera um objeto com name e description, o ID é gerado lá
         const payload = {
             name: categoryData.name,
             description: categoryData.description

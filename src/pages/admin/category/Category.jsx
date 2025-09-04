@@ -1,4 +1,3 @@
-// src/pages/admin/category/Category.jsx
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import CategoryStyle from './Category.Style.jsx';
@@ -11,6 +10,7 @@ import {
     updateCategory,
     deleteCategory
 } from '../../../services/api/categoryService';
+import { validateRequiredFields } from '../../../utils/categoryValidation.js';
 
 export default function Category() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,10 +46,20 @@ export default function Category() {
     };
 
     const handleCategoryUpdate = async (updatedCategory) => {
+        const { isValid, missingFields } = validateRequiredFields(updatedCategory, ['name', 'description']);
+        if (!isValid) {
+            Swal.fire(
+                'Atenção',
+                `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
+                'warning'
+            );
+            return;
+        }
+
         try {
             await updateCategory(updatedCategory.id, updatedCategory);
             Swal.fire('Sucesso!', 'Categoria atualizada.', 'success');
-            fetchCategories(); // Recarrega a lista
+            fetchCategories();
             handleModalClose();
         } catch (error) {
             Swal.fire('Erro!', 'Não foi possível atualizar a categoria.', 'error');
@@ -80,14 +90,18 @@ export default function Category() {
     };
 
     const handleCreateCategory = async () => {
-        const { name, description } = newCategory;
-        if (!name.trim()) {
-            Swal.fire('Atenção', 'O nome da categoria é obrigatório.', 'warning');
+        const { isValid, missingFields } = validateRequiredFields(newCategory, ['name', 'description']);
+        if (!isValid) {
+            Swal.fire(
+                'Atenção',
+                `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
+                'warning'
+            );
             return;
         }
 
         try {
-            await createCategory({ name, description });
+            await createCategory(newCategory);
             Swal.fire('Criada!', 'Nova categoria adicionada com sucesso.', 'success');
             setNewCategory({ name: '', description: '' });
             fetchCategories();

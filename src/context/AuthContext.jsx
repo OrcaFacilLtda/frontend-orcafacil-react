@@ -1,4 +1,4 @@
-import React, {createContext, useState, useEffect, useContext} from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api/api.js";
 import { getProviderProfile } from "../services/api/providerService.js";
@@ -6,8 +6,8 @@ import { getProviderProfile } from "../services/api/providerService.js";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);          // Dados básicos do usuário
-    const [providerData, setProviderData] = useState(null); // Dados extras do provider
+    const [user, setUser] = useState(null);
+    const [providerData, setProviderData] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Função de logout
     const logout = async () => {
         try {
             await api.post("/logout");
@@ -76,14 +77,29 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUserData = (newUserData) => {
+        setUser(prev => ({ ...prev, ...newUserData }));
+    };
+
+    const updateProviderData = (newProviderData) => {
+        setProviderData(prev => ({ ...prev, ...newProviderData }));
+    };
+
     if (loading) return <div>A carregar sessão...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, providerData, login, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            providerData,
+            login,
+            logout,
+            isAuthenticated: !!user,
+            updateUserData,
+            updateProviderData
+        }}>
             {children}
         </AuthContext.Provider>
     );
 };
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+
+export const useAuth = () => useContext(AuthContext);
