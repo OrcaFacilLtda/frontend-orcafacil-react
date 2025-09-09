@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { paletteColors, fontSizes,fontFamilies,fontWeights} from "../../../styles/Root.jsx";
+import { paletteColors, fontSizes, fontFamilies, fontWeights } from "../../../styles/Root.jsx";
 
 export const Conteiner = styled.div`
   width: 100%;
@@ -17,54 +17,54 @@ export const Conteiner = styled.div`
   @media (max-width: 768px) {
     padding: 0 16px;
   }
-`;  
+`;
 
 export const Logo = styled.img`
   width: 140px;
-    height: auto;
-    margin-bottom: 10px;
-    @media (max-width: 768px) {
-        width: 120px;
-    }
-    @media (max-width: 480px) {
-        width: 100px;
-    }
-    @media (max-width: 320px) {
-        width: 80px;
-    }
+  height: auto;
+  margin-bottom: 10px;
+  @media (max-width: 768px) {
+    width: 120px;
+  }
+  @media (max-width: 480px) {
+    width: 100px;
+  }
+  @media (max-width: 320px) {
+    width: 80px;
+  }
 `;
 
 export const Title = styled.h1`
-  font-size: 24px;      
-    color: ${paletteColors.primaryText};
-    margin-bottom: 10px;
-    @media (max-width: 768px) {
+  font-size: 24px;
+  color: ${paletteColors.primaryText};
+  margin-bottom: 10px;
+  @media (max-width: 768px) {
     font-size: 20px;
-    }
-    @media (max-width: 480px) {
-        font-size: 18px;
-    }
-    @media (max-width: 320px) {
-        font-size: 16px;
-    }
+  }
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
+  @media (max-width: 320px) {
+    font-size: 16px;
+  }
 `;
 
 export const Button = styled.button`
   background-color: ${paletteColors.primary};
-    color: ${paletteColors.white};
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    &:hover {
-        background-color: ${paletteColors.secondaryText};
-    }
-    @media (max-width: 768px) {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
+  color: ${paletteColors.white};
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  &:hover {
+    background-color: ${paletteColors.secondaryText};
+  }
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
 `;
 
 export const LoginAndRegisterConteiner = styled.div`
@@ -87,15 +87,19 @@ export const Nav = styled.nav`
   }
 `;
 
-
-export const Link = styled.a`
+/* 🚀 Ajustado: agora é um botão que parece link */
+export const Link = styled.button`
   position: relative;
+  background: none;
+  border: none;
+  outline: none;
   color: ${paletteColors.secondaryText};
-  text-decoration: none;
   font-size: ${fontSizes.lg};
   font-family: ${fontFamilies.primary};
   font-weight: ${fontWeights.bold};
+  cursor: pointer;
   transition: color 0.3s ease;
+  padding: 0;
 
   &:hover {
     color: ${paletteColors.secondaryText};
@@ -104,7 +108,7 @@ export const Link = styled.a`
   &::after {
     content: "";
     position: absolute;
-    bottom: 0;
+    bottom: -4px; /* underline ajustado */
     left: 0;
     width: 100%;
     height: 4px;
@@ -120,9 +124,10 @@ export const Link = styled.a`
   }
 
   @media (max-width: 768px) {
-    font-size: ${fontSizes.sm.fontSize}; // 14px
+    font-size: ${fontSizes.sm.fontSize};
   }
 `;
+
 export default {
   Container: Conteiner,
   Logo: Logo,

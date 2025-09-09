@@ -1,7 +1,5 @@
-
 import React from 'react';
 
-// Importações das seções
 import Header from './header/Header.jsx';
 import HeroSection from './hero-section/HeroSection.jsx';
 import Categories from './categories/Categories.jsx';
@@ -16,13 +14,35 @@ const LandingPage = () => {
     return (
         <>
             <Header />
-            <HeroSection />
-            <Categories />
-            <HowItWorks />
-            <OurStory />
-            <ServicesAreas />
-            <CustomerReviews />
-            <ContactUs />
+
+            <section id="home">
+                <HeroSection />
+            </section>
+
+            <section id="about">
+                <OurStory />
+            </section>
+
+            <section id="services">
+                <ServicesAreas />
+            </section>
+
+            <section id="categories">
+                <Categories />
+            </section>
+
+            <section id="how-it-works">
+                <HowItWorks />
+            </section>
+
+            <section id="reviews">
+                <CustomerReviews />
+            </section>
+
+            <section id="contact">
+                <ContactUs />
+            </section>
+
             <Footer />
         </>
     );

@@ -2,11 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import UsersStyle from './Users.Style.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
-import { getAllUsers, getUsersByStatus, updateUserStatus, deleteUser } from '../../../services/api/adminService';
-import { getProviderProfile, updateProviderProfile } from '../../../services/api/providerService';
-import { updateClientProfile } from '../../../services/api/profileService';
+import {
+    getAllUsers,
+    getUsersByStatus,
+    updateUserStatus,
+    deleteUser,
+    updateProviderProfileByAdmin,
+    updateClientProfileByAdmin
+} from '../../../services/api/adminService';
+import { getProviderProfile } from '../../../services/api/providerService';
 
 import UserAuthorizationModal from '../../../components/ui/modals/user-authorization-modal/UserAuthorizationModal.jsx';
 import EditUserModal from '../../../components/ui/modals/edit-user-modal/EditUserModal.jsx';
@@ -30,7 +36,12 @@ export default function Users() {
             setPendingUsers(pending || []);
             setAllUsers(all.filter(user => user.status !== 'PENDING') || []);
         } catch (error) {
-            Swal.fire('Erro!', 'Não foi possível carregar os utilizadores.', 'error');
+            Swal.fire({
+                title: 'Erro!',
+                text: 'Não foi possível carregar os utilizadores.',
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         } finally {
             setLoading(false);
         }
@@ -47,27 +58,40 @@ export default function Users() {
 
     const handleOpenEdit = async (user) => {
         try {
-            let fullProfile;
+            let fullProfile = user;
             if (user.userType === 'PROVIDER') {
                 fullProfile = await getProviderProfile(user.id);
-            } else {
-                fullProfile = user;
             }
             setSelectedUser(fullProfile);
             setIsEditModalOpen(true);
         } catch (error) {
-            Swal.fire('Erro!', 'Não foi possível carregar os dados completos do utilizador.', 'error');
+            Swal.fire({
+                title: 'Erro!',
+                text: 'Não foi possível carregar os dados completos do utilizador.',
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         }
     };
 
     const handleUpdateStatus = async (userId, newStatus) => {
         try {
             await updateUserStatus(userId, newStatus);
-            Swal.fire('Sucesso!', 'O status do utilizador foi atualizado.', 'success');
+            Swal.fire({
+                title: 'Sucesso!',
+                text: 'O status do utilizador foi atualizado.',
+                icon: 'success',
+                confirmButtonColor: '#0d6efd'
+            });
             fetchAllData();
             setIsAuthorizationModalOpen(false);
         } catch(error) {
-            Swal.fire('Erro!', 'Não foi possível atualizar o status.', 'error');
+            Swal.fire({
+                title: 'Erro!',
+                text: 'Não foi possível atualizar o status.',
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         }
     };
 
@@ -85,11 +109,21 @@ export default function Users() {
             if (result.isConfirmed) {
                 try {
                     await deleteUser(userToDelete.id);
-                    Swal.fire('Apagado!', 'O utilizador foi removido.', 'success');
+                    Swal.fire({
+                        title: 'Apagado!',
+                        text: 'O utilizador foi removido.',
+                        icon: 'error',
+                        confirmButtonColor: '#d33'
+                    });
                     fetchAllData();
                     setIsEditModalOpen(false);
                 } catch (error) {
-                    Swal.fire('Erro!', 'Não foi possível apagar o utilizador.', 'error');
+                    Swal.fire({
+                        title: 'Erro!',
+                        text: 'Não foi possível apagar o utilizador.',
+                        icon: 'error',
+                        confirmButtonColor: '#d33'
+                    });
                 }
             }
         });
@@ -97,34 +131,58 @@ export default function Users() {
 
     const handleSaveChanges = async (formData) => {
         try {
+            // 🔹 Log para verificar o que está sendo enviado
+            console.log("Dados enviados para atualização:", formData);
+
             if(formData.userType === 'provider') {
+                const userUpdateRequest = {};
+                if(formData.user.name) userUpdateRequest.name = formData.user.name;
+                if(formData.user.email) userUpdateRequest.email = formData.user.email;
+                if(formData.user.phone) userUpdateRequest.phone = formData.user.phone;
+                if(formData.user.address) userUpdateRequest.address = { ...formData.user.address };
+                if(formData.user.password) userUpdateRequest.password = formData.user.password;
+
+                const companyUpdateRequest = { id: formData.company.id };
+                if(formData.company.legalName) companyUpdateRequest.legalName = formData.company.legalName;
+                if(formData.company.cnpj) companyUpdateRequest.cnpj = formData.company.cnpj;
+                if(formData.company.address) companyUpdateRequest.address = { ...formData.company.address };
+
                 const payload = {
-                    userUpdateRequest: {
-                        name: formData.user.name,
-                        email: formData.user.email,
-                        phone: formData.user.phone,
-                        address: formData.user.address
-                    },
-                    companyUpdateRequest: {
-                        id: formData.company.id,
-                        legalName: formData.company.legalName,
-                        cnpj: formData.company.cnpj
-                    },
-                    categoryId: formData.category.id
+                    userUpdateRequest,
+                    companyUpdateRequest,
+                    categoryId: formData.category?.id
                 };
-                await updateProviderProfile(formData.user.id, payload);
+
+                await updateProviderProfileByAdmin(formData.user.id, payload);
             } else {
-                await updateClientProfile(formData.user.id, formData.user);
+                const clientPayload = { ...formData.user };
+                Object.keys(clientPayload).forEach(key => {
+                    if(clientPayload[key] === null || clientPayload[key] === undefined) {
+                        delete clientPayload[key];
+                    }
+                });
+                await updateClientProfileByAdmin(formData.user.id, clientPayload);
             }
-            Swal.fire('Sucesso!', 'Utilizador atualizado com sucesso.', 'success');
+
+            Swal.fire({
+                title: 'Sucesso!',
+                text: 'Utilizador atualizado com sucesso.',
+                icon: 'success',
+                confirmButtonColor: '#0d6efd'
+            });
+
             fetchAllData();
             setIsEditModalOpen(false);
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Não foi possível guardar as alterações.';
-            Swal.fire('Erro!', errorMessage, 'error');
+            Swal.fire({
+                title: 'Erro!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         }
     };
-
 
     return (
         <UsersStyle.Container>

@@ -1,15 +1,4 @@
-// src/services/api/categoryService.js
 import api from './api';
-
-export const getAllCategories = async () => {
-    try {
-        const response = await api.get('/api/categories');
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao buscar categorias:", error);
-        throw error;
-    }
-};
 
 export const createCategory = async (categoryData) => {
     try {
@@ -40,6 +29,16 @@ export const deleteCategory = async (categoryId) => {
         await api.delete(`/api/categories/${categoryId}`);
     } catch (error) {
         console.error("Erro ao deletar categoria:", error);
+        throw error;
+    }
+};
+
+export const getAllCategories = async () => {
+    try {
+        const response = await api.get('/api/categories');
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
         throw error;
     }
 };

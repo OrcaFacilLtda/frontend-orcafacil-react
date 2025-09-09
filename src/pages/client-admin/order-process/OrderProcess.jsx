@@ -70,7 +70,7 @@ const OrderProcess = () => {
     useEffect(() => { fetchAllData(); }, [serviceId]);
 
     const showAlert = (title, text, icon = 'info') => {
-        Swal.fire({ title, text, icon, confirmButtonColor: '#2B4C7E', cancelButtonColor: '#6c757d' });
+        Swal.fire({ title, text, icon, confirmButtonColor: '#3085d6', cancelButtonColor: '#6c757d' });
     };
 
     const handleConfirmStep = async (stepName) => {

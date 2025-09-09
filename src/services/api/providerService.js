@@ -1,6 +1,27 @@
 import api from './api';
 
 
+export const createProvider = async (providerData) => {
+    try {
+        const response = await api.post('/api/providers', providerData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao criar prestador:", error);
+        throw error;
+    }
+};
+
+export const updateProviderProfile = async (providerId, providerData) => {
+    try {
+        const response = await api.put(`/api/providers/${providerId}`, providerData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao atualizar perfil do prestador:", error);
+        throw error;
+    }
+};
+
+
 export const getActiveProviders = async () => {
     try {
         const response = await api.get('/api/providers/active');
@@ -34,15 +55,6 @@ export const getProviderStats = async (companyId) => {
 };
 
 
-export const createProvider = async (providerData) => {
-    try {
-        const response = await api.post('/api/providers', providerData);
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao criar prestador:", error);
-        throw error;
-    }
-};
 
 
 export const getProviderProfile = async (providerId) => {
@@ -56,15 +68,6 @@ export const getProviderProfile = async (providerId) => {
 };
 
 
-export const updateProviderProfile = async (providerId, providerData) => {
-    try {
-        const response = await api.put(`/api/providers/${providerId}`, providerData);
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao atualizar perfil do prestador:", error);
-        throw error;
-    }
-};
 
 
 export const getProviderChartData = async (companyId) => {

@@ -1,27 +1,42 @@
-
 export const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 };
 
 export const validateCPF = (cpf) => {
+    const digits = cpf.replace(/\D/g, '');
     const regex = /^\d{11}$/;
-    return regex.test(cpf);
+    return regex.test(digits);
 };
 
 export const validateCNPJ = (cnpj) => {
+    const digits = cnpj.replace(/\D/g, ''); 
     const regex = /^\d{14}$/;
-    return regex.test(cnpj);
+    return regex.test(digits);
 };
 
 export const validatePassword = (password) => {
-    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-    return regex.test(password);
+    if (password.length < 6) return false;
+
+    let hasLetter = false;
+    let hasNumber = false;
+
+    for (let i = 0; i < password.length; i++) {
+        const char = password[i];
+        if (char >= '0' && char <= '9') {
+            hasNumber = true;
+        } else if ((char >= 'A' && char <= 'Z') || (char >= 'a' && char <= 'z')) {
+            hasLetter = true;
+        }
+        if (hasLetter && hasNumber) return true;
+    }
+
+    return false;
 };
 
 export const validatePhone = (phone) => {
-    const regex = /^\d{10,11}$/;
-    return regex.test(phone);
+    const digits = phone.replace(/\D/g, '');
+    return digits.length === 10 || digits.length === 11;
 };
 
 export const validateRegisterForm = (formData, userType) => {

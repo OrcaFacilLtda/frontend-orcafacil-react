@@ -31,10 +31,6 @@ export const rejectServiceRequest = async (serviceId, providerId) => {
     }
 };
 
-// ------------------------------------
-// FUNÇÕES DE CONFIRMAÇÃO DE ETAPAS
-// ------------------------------------
-
 export const confirmVisitStep = async (serviceId, userId) => {
     try {
         const response = await api.post(`/api/services/${serviceId}/confirm-visit/${userId}`, {});

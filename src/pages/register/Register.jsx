@@ -59,7 +59,8 @@ const Register = () => {
                 title: 'Erro de Validação',
                 text: validationError,
                 icon: 'warning',
-                confirmButtonText: 'Ok'
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#d33'
             });
             return;
         }
@@ -112,7 +113,8 @@ const Register = () => {
                 title: 'Sucesso!',
                 text: 'Cadastro realizado com sucesso! Seu acesso será liberado após aprovação.',
                 icon: 'success',
-                confirmButtonText: 'Ok'
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#3085d6'
             }).then(() => navigate('/login'));
 
         } catch (err) {
@@ -122,7 +124,8 @@ const Register = () => {
                 title: 'Erro no Cadastro',
                 text: errorMessage,
                 icon: 'error',
-                confirmButtonText: 'Tentar Novamente'
+                confirmButtonText: 'Tentar Novamente',
+                confirmButtonColor: '#d33'
             });
             setError(errorMessage);
         }

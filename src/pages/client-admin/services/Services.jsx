@@ -7,7 +7,6 @@ import { getServicesByProvider, getServicesByClient } from "../../../services/ap
 import { useAuth } from "../../../hooks/useAuth.js";
 
 const STATUS_MAP = {
-    REQUEST_SENT: "Solicitação enviada",
     REJECTED: "Rejeitado",
     NEGOTIATING_VISIT: "Negociando visita",
     VISIT_CONFIRMED: "Visita confirmada",
@@ -49,6 +48,7 @@ const Services = () => {
                     }
 
                     data = await getServicesByProvider(companyId);
+                    data = data.filter(service => service.serviceStatus !== 'REQUEST_SENT');
                 } else {
                     data = await getServicesByClient(user.id);
                 }
@@ -69,7 +69,6 @@ const Services = () => {
     const handleFilter = () => {
         let temp = [...services];
 
-        // Filtro por busca
         if (searchTerm.trim() !== '') {
             const term = searchTerm.toLowerCase();
             temp = temp.filter(service => {
@@ -78,7 +77,6 @@ const Services = () => {
             });
         }
 
-        // Filtro por status
         if (statusFilter !== '') {
             temp = temp.filter(service => service.serviceStatus === statusFilter);
         }

@@ -1,5 +1,44 @@
 import api from './api';
 
+export const updateClientProfileByAdmin = async (userId, userData) => {
+    try {
+        const response = await api.put(`/api/users/admin/${userId}`, userData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao atualizar perfil do cliente:", error);
+        throw error;
+    }
+};
+
+export const updateProviderProfileByAdmin = async (providerId, providerData) => {
+    try {
+        const response = await api.put(`/api/providers/admin/${providerId}`, providerData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao atualizar perfil do prestador:", error);
+        throw error;
+    }
+};
+
+export const updateUserStatus = async (userId, newStatus) => {
+    try {
+        const payload = { status: newStatus.toUpperCase() };
+        const response = await api.patch(`/api/users/${userId}/status`, payload);
+        return response.data.data;
+    } catch (error) {
+        console.error(`Erro ao atualizar status do usuário ${userId}:`, error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (userId) => {
+    try {
+        await api.delete(`/api/users/${userId}`);
+    } catch (error) {
+        console.error(`Erro ao deletar usuário ${userId}:`, error);
+        throw error;
+    }
+};
 
 export const getAllUsers = async () => {
     try {
@@ -11,7 +50,6 @@ export const getAllUsers = async () => {
     }
 };
 
-
 export const getUsersByStatus = async (status) => {
     try {
         const response = await api.get(`/api/users/status/${status.toUpperCase()}`);
@@ -22,32 +60,6 @@ export const getUsersByStatus = async (status) => {
     }
 };
 
-
-export const updateUserStatus = async (userId, newStatus) => {
-    try {
-        const payload = {
-            status: newStatus.toUpperCase()
-        };
-        const response = await api.patch(`/api/users/${userId}/status`, payload);
-        return response.data.data;
-
-    } catch (error) {
-        console.error(`Erro ao atualizar status do usuário ${userId}:`, error);
-        throw error;
-    }
-};
-
-
-export const deleteUser = async (userId) => {
-    try {
-        await api.delete(`/api/users/${userId}`);
-    } catch (error) {
-        console.error(`Erro ao deletar usuário ${userId}:`, error);
-        throw error;
-    }
-}
-
-
 export const getAdminDashboardStats = async () => {
     try {
         const response = await api.get('/api/statistics/admin');
@@ -57,7 +69,6 @@ export const getAdminDashboardStats = async () => {
         throw error;
     }
 };
-
 
 export const getAdminChartData = async () => {
     try {

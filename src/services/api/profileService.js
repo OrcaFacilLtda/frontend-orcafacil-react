@@ -1,25 +1,5 @@
 import api from './api';
 
-export const getUserProfile = async (userId) => {
-    try {
-        const response = await api.get(`/api/users/${userId}`);
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
-        throw error;
-    }
-};
-
-export const getProviderProfile = async (providerId) => {
-    try {
-        const response = await api.get(`/api/providers/${providerId}`);
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao buscar dados do prestador:", error);
-        throw error;
-    }
-};
-
 export const updateClientProfile = async (userId, userData) => {
     try {
         const response = await api.put(`/api/users/${userId}`, userData);
@@ -41,6 +21,25 @@ export const updateProviderProfile = async (providerId, providerData) => {
 };
 
 
+export const getUserProfile = async (userId) => {
+    try {
+        const response = await api.get(`/api/users/${userId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+        throw error;
+    }
+};
+
+export const getProviderProfile = async (providerId) => {
+    try {
+        const response = await api.get(`/api/providers/${providerId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao buscar dados do prestador:", error);
+        throw error;
+    }
+};
 
 export const getProfileByEmail = async (email) => {
     try {

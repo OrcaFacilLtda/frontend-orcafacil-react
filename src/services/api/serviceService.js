@@ -1,5 +1,15 @@
 import api from './api';
 
+export const createServiceRequest = async (serviceData) => {
+    try {
+        const response = await api.post('/api/services', serviceData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Erro ao criar solicitação de serviço:", error);
+        throw error;
+    }
+};
+
 export const getServicesByProvider = async (companyId) => {
     try {
         const response = await api.get(`/api/services/company/${companyId}`);
@@ -20,12 +30,4 @@ export const getServicesByClient = async (userId) => {
     }
 };
 
-export const createServiceRequest = async (serviceData) => {
-    try {
-        const response = await api.post('/api/services', serviceData);
-        return response.data.data;
-    } catch (error) {
-        console.error("Erro ao criar solicitação de serviço:", error);
-        throw error;
-    }
-};
+

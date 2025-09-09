@@ -1,4 +1,3 @@
-// Profile.jsx
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import ProfileStyle from './Profilie.Style.jsx';
@@ -91,7 +90,6 @@ const Profile = ({ isClient }) => {
         if (name === 'phone') maskedValue = maskPhone(value);
         if (name === 'zipCode') maskedValue = maskCEP(value);
 
-        // CPF e CNPJ estão desabilitados, mas colocamos por consistência
         if (name === 'cpf') maskedValue = maskCPF(value).slice(0, 14);
         if (name === 'cnpj') maskedValue = maskCNPJ(value);
 
@@ -165,10 +163,20 @@ const Profile = ({ isClient }) => {
                 });
             }
 
-            Swal.fire('Sucesso!', 'Perfil atualizado com sucesso.', 'success');
+            Swal.fire({
+                title: 'Sucesso!',
+                text: 'Perfil atualizado com sucesso.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6'
+            });
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Ocorreu um erro ao atualizar o perfil.';
-            Swal.fire('Erro!', errorMessage, 'error');
+            Swal.fire({
+                title: 'Erro!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonColor: '#d33'
+            });
         }
     };
 

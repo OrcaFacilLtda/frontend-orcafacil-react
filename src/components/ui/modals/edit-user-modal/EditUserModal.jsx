@@ -5,7 +5,6 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) => {
     const [formData, setFormData] = useState({});
-    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -46,12 +45,12 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
         const saveData = JSON.parse(JSON.stringify(formData));
 
         if (newPassword && newPassword === confirmPassword) {
-            saveData.user.currentPassword = currentPassword;
             saveData.user.password = newPassword;
         } else {
             delete saveData.user.password;
         }
 
+        console.log("Payload enviado ao backend:", saveData);
         onSave(saveData);
     };
 
@@ -71,51 +70,95 @@ const EditUserModal = ({ isOpen, onClose, user, userType, onSave, onDelete }) =>
                     <EditUserModalStyle.FormGrid>
                         <div>
                             <label>Nome:</label>
-                            <input type="text" value={formData.user?.name || ''} onChange={(e) => handleChange(e, 'user', 'name')} />
+                            <input
+                                type="text"
+                                value={formData.user?.name || ''}
+                                onChange={(e) => handleChange(e, 'user', 'name')}
+                            />
                             <label>Email:</label>
-                            <input type="email" value={formData.user?.email || ''} onChange={(e) => handleChange(e, 'user', 'email')} />
+                            <input
+                                type="email"
+                                value={formData.user?.email || ''}
+                                onChange={(e) => handleChange(e, 'user', 'email')}
+                            />
                             <label>Telefone:</label>
-                            <input type="tel" value={formData.user?.phone || ''} onChange={(e) => handleChange(e, 'user', 'phone')} />
+                            <input
+                                type="tel"
+                                value={formData.user?.phone || ''}
+                                onChange={(e) => handleChange(e, 'user', 'phone')}
+                            />
                             {userType === "provider" && (
                                 <>
                                     <label>Razão Social:</label>
-                                    <input type="text" value={formData.company?.legalName || ''} onChange={(e) => handleChange(e, 'company', 'legalName')} />
+                                    <input
+                                        type="text"
+                                        value={formData.company?.legalName || ''}
+                                        onChange={(e) => handleChange(e, 'company', 'legalName')}
+                                    />
                                     <label>CNPJ:</label>
-                                    <input type="text" value={formData.company?.cnpj || ''} disabled />
+                                    <input
+                                        type="text"
+                                        value={formData.company?.cnpj || ''}
+                                        disabled
+                                    />
                                 </>
                             )}
                         </div>
                         <div>
                             <label>Rua:</label>
-                            <input type="text" value={formData.user?.address?.street || ''} onChange={(e) => handleAddressChange(e, 'street')} />
+                            <input
+                                type="text"
+                                value={formData.user?.address?.street || ''}
+                                onChange={(e) => handleAddressChange(e, 'street')}
+                            />
                             <label>Bairro:</label>
-                            <input type="text" value={formData.user?.address?.neighborhood || ''} onChange={(e) => handleAddressChange(e, 'neighborhood')} />
+                            <input
+                                type="text"
+                                value={formData.user?.address?.neighborhood || ''}
+                                onChange={(e) => handleAddressChange(e, 'neighborhood')}
+                            />
                             <label>Cidade:</label>
-                            <input type="text" value={formData.user?.address?.city || ''} onChange={(e) => handleAddressChange(e, 'city')} />
+                            <input
+                                type="text"
+                                value={formData.user?.address?.city || ''}
+                                onChange={(e) => handleAddressChange(e, 'city')}
+                            />
                             <label>CEP:</label>
-                            <input type="text" value={formData.user?.address?.zipCode || ''} onChange={(e) => handleAddressChange(e, 'zipCode')} />
+                            <input
+                                type="text"
+                                value={formData.user?.address?.zipCode || ''}
+                                onChange={(e) => handleAddressChange(e, 'zipCode')}
+                            />
                         </div>
                     </EditUserModalStyle.FormGrid>
 
-                    {/* Password Fields */}
+                    {/* Campos de senha */}
                     <hr />
                     <h4>Alterar Senha</h4>
                     <EditUserModalStyle.FormGrid>
                         <div>
-                            <label>Senha Atual:</label>
-                            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-                        </div>
-                        <div>
                             <label>Nova Senha:</label>
-                            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                            <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
                             <label>Confirmar Nova Senha:</label>
-                            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                            <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
                         </div>
                     </EditUserModalStyle.FormGrid>
 
                     <EditUserModalStyle.Buttons>
-                        <button type="button" className="btn-delete" onClick={onDelete}>Apagar</button>
-                        <button type="submit" className="btn-save">Guardar Alterações</button>
+                        <button type="button" className="btn-delete" onClick={onDelete}>
+                            Apagar
+                        </button>
+                        <button type="submit" className="btn-save">
+                            Guardar Alterações
+                        </button>
                     </EditUserModalStyle.Buttons>
                 </EditUserModalStyle.Body>
             </EditUserModalStyle.ModalContainer>

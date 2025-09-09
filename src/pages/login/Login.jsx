@@ -31,14 +31,13 @@ const Login = () => {
                 text: validationError,
                 icon: "warning",
                 confirmButtonText: "Ok",
+                confirmButtonColor: "#d33",
             });
             return;
         }
 
         try {
-            console.log("Tentando login com:", email, password);
             await login(email, password);
-            console.log("Login efetuado com sucesso");
         } catch (err) {
             console.error("Erro no login:", err);
             const errorMessage =
@@ -51,6 +50,7 @@ const Login = () => {
                 text: errorMessage,
                 icon: "error",
                 confirmButtonText: "Tentar Novamente",
+                confirmButtonColor: "#d33",  
             });
 
             setError(errorMessage);
