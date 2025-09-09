@@ -111,7 +111,7 @@ const Register = () => {
 
             Swal.fire({
                 title: 'Sucesso!',
-                text: 'Cadastro realizado com sucesso! Seu acesso será liberado após aprovação.',
+                text: 'Cadastro realizado com sucesso!',
                 icon: 'success',
                 confirmButtonText: 'Ok',
                 confirmButtonColor: '#3085d6'

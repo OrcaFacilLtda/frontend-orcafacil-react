@@ -26,6 +26,20 @@ export default function Users() {
     const [allUsers, setAllUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 🔁 Traduz o status do usuário
+    const translateStatus = (status) => {
+        switch (status) {
+            case 'APPROVED':
+                return 'APROVADO';
+            case 'PENDING':
+                return 'PENDENTE';
+            case 'REJECTED':
+                return 'REJEITADO';
+            default:
+                return status;
+        }
+    };
+
     const fetchAllData = async () => {
         try {
             setLoading(true);
@@ -85,7 +99,7 @@ export default function Users() {
             });
             fetchAllData();
             setIsAuthorizationModalOpen(false);
-        } catch(error) {
+        } catch (error) {
             Swal.fire({
                 title: 'Erro!',
                 text: 'Não foi possível atualizar o status.',
@@ -133,18 +147,18 @@ export default function Users() {
         try {
             console.log("Dados enviados para atualização:", formData);
 
-            if(formData.userType === 'provider') {
+            if (formData.userType === 'provider') {
                 const userUpdateRequest = {};
-                if(formData.user.name) userUpdateRequest.name = formData.user.name;
-                if(formData.user.email) userUpdateRequest.email = formData.user.email;
-                if(formData.user.phone) userUpdateRequest.phone = formData.user.phone;
-                if(formData.user.address) userUpdateRequest.address = { ...formData.user.address };
-                if(formData.user.password) userUpdateRequest.password = formData.user.password;
+                if (formData.user.name) userUpdateRequest.name = formData.user.name;
+                if (formData.user.email) userUpdateRequest.email = formData.user.email;
+                if (formData.user.phone) userUpdateRequest.phone = formData.user.phone;
+                if (formData.user.address) userUpdateRequest.address = { ...formData.user.address };
+                if (formData.user.password) userUpdateRequest.password = formData.user.password;
 
                 const companyUpdateRequest = { id: formData.company.id };
-                if(formData.company.legalName) companyUpdateRequest.legalName = formData.company.legalName;
-                if(formData.company.cnpj) companyUpdateRequest.cnpj = formData.company.cnpj;
-                if(formData.company.address) companyUpdateRequest.address = { ...formData.company.address };
+                if (formData.company.legalName) companyUpdateRequest.legalName = formData.company.legalName;
+                if (formData.company.cnpj) companyUpdateRequest.cnpj = formData.company.cnpj;
+                if (formData.company.address) companyUpdateRequest.address = { ...formData.company.address };
 
                 const payload = {
                     userUpdateRequest,
@@ -156,7 +170,7 @@ export default function Users() {
             } else {
                 const clientPayload = { ...formData.user };
                 Object.keys(clientPayload).forEach(key => {
-                    if(clientPayload[key] === null || clientPayload[key] === undefined) {
+                    if (clientPayload[key] === null || clientPayload[key] === undefined) {
                         delete clientPayload[key];
                     }
                 });
@@ -224,7 +238,7 @@ export default function Users() {
                         <UsersStyle.List>
                             {allUsers.map((user) => (
                                 <UsersStyle.ListItem key={user.id}>
-                                    <strong>{user.name} - {user.userType} ({user.status})</strong>
+                                    <strong>{user.name} - {user.userType} ({translateStatus(user.status)})</strong>
                                     <p>{user.email}</p>
                                     <UsersStyle.ButtonsWrapper>
                                         <button className="btn-edit" onClick={() => handleOpenEdit(user)}>Editar</button>
