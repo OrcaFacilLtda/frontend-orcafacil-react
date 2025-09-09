@@ -131,7 +131,6 @@ export default function Users() {
 
     const handleSaveChanges = async (formData) => {
         try {
-            // 🔹 Log para verificar o que está sendo enviado
             console.log("Dados enviados para atualização:", formData);
 
             if(formData.userType === 'provider') {
