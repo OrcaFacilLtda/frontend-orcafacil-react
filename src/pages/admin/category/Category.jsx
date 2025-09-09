@@ -46,19 +46,26 @@ export default function Category() {
     };
 
     const handleCategoryUpdate = async (updatedCategory) => {
-        const { isValid, missingFields } = validateRequiredFields(updatedCategory, ['name', 'description']);
+        const { isValid } = validateRequiredFields(updatedCategory, ['name', 'description']);
         if (!isValid) {
-            Swal.fire(
-                'Atenção',
-                `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
-                'warning'
+            Swal.fire({
+                    title: 'Atenção',
+                    text: `Preencha os campos obrigatórios: nome e descrição`,
+                    icon: 'warning',
+                    confirmButtonColor: '#d33',
+                }
             );
             return;
         }
 
         try {
             await updateCategory(updatedCategory.id, updatedCategory);
-            Swal.fire('Sucesso!', 'Categoria atualizada.', 'success');
+            Swal.fire({
+                title:'Sucesso!',
+                text:'Categoria atualizada.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+            });
             fetchCategories();
             handleModalClose();
         } catch (error) {
@@ -73,14 +80,18 @@ export default function Category() {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sim, apagar!',
             cancelButtonText: 'Cancelar'
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
                     await deleteCategory(id);
-                    Swal.fire('Apagada!', 'A categoria foi apagada.', 'success');
+                    Swal.fire({
+                        tile:'Apagada!',
+                        text:'A categoria foi apagada.',
+                        icon:'success',
+                        confirmButtonColor: '#3085d6',
+                    });
                     fetchCategories();
                 } catch (error) {
                     Swal.fire('Erro!', 'Não foi possível apagar a categoria.', 'error');
@@ -90,19 +101,26 @@ export default function Category() {
     };
 
     const handleCreateCategory = async () => {
-        const { isValid, missingFields } = validateRequiredFields(newCategory, ['name', 'description']);
+        const { isValid } = validateRequiredFields(newCategory, ['name', 'description']);
         if (!isValid) {
-            Swal.fire(
-                'Atenção',
-                `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
-                'warning'
+            Swal.fire({
+                    title:  'Atenção',
+                   text: `Preencha os campos obrigatórios: nome e descrição`,
+                    icon:'warning',
+                    confirmButtonColor: '#3085d6',
+                }
             );
             return;
         }
 
         try {
             await createCategory(newCategory);
-            Swal.fire('Criada!', 'Nova categoria adicionada com sucesso.', 'success');
+            Swal.fire({
+                title: 'Criada!',
+                text: 'Nova categoria adicionada com sucesso.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+            });
             setNewCategory({ name: '', description: '' });
             fetchCategories();
         } catch (error) {
